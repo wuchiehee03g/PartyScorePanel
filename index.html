@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BetPanel · 尊榮包廂熱場投注站</title>
+    <title>BetPanel · 現場互動預測積分</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
     
     <!-- Core App Engine -->
-    <script src="app.js?v=single-session1"></script>
+    <script src="app.js?v=signed-score1"></script>
 </head>
 <body>
 
@@ -29,7 +29,7 @@
                 <div class="eyebrow">
                     <span class="eyebrow-badge">活動點數版</span> BETPANEL
                 </div>
-                <h1>包廂熱場<span class="accent">投注站</span></h1>
+                <h1>現場預測<span class="accent">積分板</span></h1>
             </div>
             
             <div class="header-actions">
@@ -43,10 +43,10 @@
         <!-- Live Ticker Bar (Room Activity Stream) -->
         <div id="liveTickerBar" class="activity-ticker" style="display: none;">
             <span class="ticker-icon">即時動態</span>
-            <span class="ticker-content" id="tickerText">歡迎加入包廂！下注動態即時同步中...</span>
+            <span class="ticker-content" id="tickerText">歡迎加入活動！預測動態即時同步中...</span>
         </div>
         <section id="situationPanel" class="card" style="display:none; margin-top:12px; border-color:var(--cyan);">
-            <div class="d-flex justify-between align-center mb-2"><h3 style="margin:0; color:var(--cyan-bright);">📣 即時戰況</h3><span class="text-dim" style="font-size:.78rem;">莊家同步更新</span></div>
+            <div class="d-flex justify-between align-center mb-2"><h3 style="margin:0; color:var(--cyan-bright);">📣 即時戰況</h3><span class="text-dim" style="font-size:.78rem;">主持人同步更新</span></div>
             <div id="situationFeed"></div>
         </section>
 
@@ -56,8 +56,8 @@
             <section id="roomEntrySection" style="display: none;">
                 <div class="card form-card-centered card-gold-glow text-center my-4" style="padding:32px 24px;">
                     <div style="width:60px; height:60px; background:var(--gold-gradient); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; font-size:1.8rem; box-shadow:0 0 20px var(--gold-glow);">👑</div>
-                    <h2 style="font-size: 1.6rem; margin-bottom: 6px; color: #fff;">加入包廂賭盤</h2>
-                    <p class="text-dim mb-3" style="font-size: 0.85rem;">請輸入莊家提供的 6 位包廂代碼</p>
+                    <h2 style="font-size: 1.6rem; margin-bottom: 6px; color: #fff;">加入現場活動</h2>
+                    <p class="text-dim mb-3" style="font-size: 0.85rem;">請輸入主持人提供的 6 位活動代碼</p>
                     
                     <div class="form-group mb-3">
                         <input type="text" id="roomCodeInput" class="input-control font-mono text-gold text-center" 
@@ -66,11 +66,11 @@
                     </div>
                     
                     <button class="btn btn-gold w-100 py-3" id="joinRoomBtn" style="font-size: 1.1rem;">
-                        🚀 立即進入包廂
+                        🚀 立即進入活動
                     </button>
                     
                     <div class="mt-3 text-dim text-center" style="font-size: 0.82rem;">
-                        <p>或直接掃描包廂專屬 QR Code 免輸入自動加入</p>
+                        <p>或直接掃描活動專屬 QR Code 免輸入自動加入</p>
                     </div>
                 </div>
             </section>
@@ -86,39 +86,39 @@
                                 👤
                             </div>
                             <div>
-                                <div class="text-dim" style="font-size: 0.72rem;">當前包廂</div>
+                                <div class="text-dim" style="font-size: 0.72rem;">當前活動</div>
                                 <div class="font-mono text-cyan" style="font-size: 1.2rem; font-weight: 800;" id="roomTitleDisplay">---</div>
                                 <div class="text-dim" style="font-size: 0.72rem;" id="sessionStatusDisplay">活動點數不代表金額，平台不提供收付或兌現</div>
                             </div>
                         </div>
                         <div>
                             <button class="btn btn-outline" style="padding: 5px 12px; font-size: 0.8rem;" onclick="leaveRoom()">
-                                🚪 離開包廂
+                                🚪 離開活動
                             </button>
                         </div>
                     </div>
                     
                     <div class="form-group mb-3">
-                        <label>玩家暱稱 (下注辨識名稱)</label>
+                        <label>參與者暱稱</label>
                         <input type="text" id="nicknameInput" class="input-control" placeholder="請輸入您的暱稱 (例如: KTV歌神、阿豪)..." autocomplete="off">
                     </div>
                     
                     <!-- Personal Statistics Strip -->
                     <div class="summary-strip">
                         <div class="stat-card blue">
-                            <div class="lbl">總下注數</div>
+                            <div class="lbl">預測次數</div>
                             <div class="num" id="myBetCount">0</div>
                         </div>
                         <div class="stat-card blue">
-                            <div class="lbl">總投注點數</div>
+                            <div class="lbl">累計風險分數</div>
                             <div class="num" id="myTotalStaked">0 Pts</div>
                         </div>
                         <div class="stat-card">
-                            <div class="lbl">已結算損益</div>
+                            <div class="lbl">已公布淨積分</div>
                             <div class="num pos" id="mySettledPnL">0 Pts</div>
                         </div>
                         <div class="stat-card">
-                            <div class="lbl">未結算投注</div>
+                            <div class="lbl">待公布風險分數</div>
                             <div class="num text-dim" id="myPendingAmount">0 Pts</div>
                         </div>
                     </div>
@@ -126,8 +126,8 @@
 
                 <!-- Navigation Tabs -->
                 <div class="tabs">
-                    <button class="tab-btn active" data-tab="bet">🔥 盤口下注</button>
-                    <button class="tab-btn" data-tab="history">📋 我的注單</button>
+                    <button class="tab-btn active" data-tab="bet">🔥 現場預測</button>
+                    <button class="tab-btn" data-tab="history">📋 我的紀錄</button>
                 </div>
 
                 <!-- Tab Contents -->
@@ -138,8 +138,8 @@
                         <div id="marketList"></div>
                         <div id="noMarketsMsg" class="card text-center text-dim my-4" style="display: none; padding: 36px 20px;">
                             <div style="font-size: 2.5rem; margin-bottom: 8px;">🎲</div>
-                            <h3>目前無開放中的盤口</h3>
-                            <p class="mt-2 text-dim" style="font-size: 0.85rem;">請等待莊家建立新盤口或開盤...</p>
+                            <h3>目前無開放中的預測題目</h3>
+                            <p class="mt-2 text-dim" style="font-size: 0.85rem;">請等待主持人建立新題目...</p>
                         </div>
                     </div>
                     
@@ -147,14 +147,14 @@
                     <div class="card mb-3 card-cyan-glow">
                         <div class="d-flex justify-between align-center mb-2">
                             <div>
-                                <h3 style="margin:0; color:var(--cyan-bright);">公開房間帳本</h3>
-                                <p class="text-dim" style="font-size:0.78rem; margin-top:3px;">所有已接受下注均列在此，玩家可自行核對。</p>
+                                <h3 style="margin:0; color:var(--cyan-bright);">公開活動紀錄</h3>
+                                <p class="text-dim" style="font-size:0.78rem; margin-top:3px;">所有已接受的預測均列在此，參與者可自行核對。</p>
                             </div>
                             <div id="publicLedgerSummary" class="font-mono text-gold text-right" style="font-size:0.82rem;">尚無資料</div>
                         </div>
                         <div class="table-responsive">
                             <table>
-                                <thead><tr><th>時間</th><th>玩家</th><th>盤口／選項</th><th class="text-right">活動點數</th><th class="text-right">賠率</th><th class="text-center">狀態</th></tr></thead>
+                                <thead><tr><th>時間</th><th>參與者</th><th>題目／選項</th><th class="text-right">風險分數</th><th class="text-right">可能正分</th><th class="text-center">狀態</th></tr></thead>
                                 <tbody id="publicLedgerBody"></tbody>
                             </table>
                         </div>
@@ -167,12 +167,12 @@
                                     <thead>
                                         <tr>
                                             <th>時間</th>
-                                            <th>盤口名稱</th>
-                                            <th>下注選項</th>
-                                            <th class="text-right">活動點數</th>
-                                            <th class="text-right">賠率</th>
+                                            <th>預測題目</th>
+                                            <th>選擇結果</th>
+                                            <th class="text-right">風險分數</th>
+                                            <th class="text-right">可能正分</th>
                                             <th class="text-center">狀態</th>
-                                            <th class="text-right">損益</th>
+                                            <th class="text-right">淨積分</th>
                                         </tr>
                                     </thead>
                                     <tbody id="myBetsTableBody">
@@ -181,7 +181,7 @@
                                 </table>
                             </div>
                             <div id="noBetsMsg" class="text-center text-dim p-4" style="display: none;">
-                                尚無任何投注紀錄
+                                尚無任何預測紀錄
                             </div>
                         </div>
                     </div>
@@ -193,7 +193,7 @@
         </main>
 
         <footer style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 40px; padding: 20px 0;">
-            BetPanel · 無餘額活動點數記帳 · 平台不提供儲值、換算、收款、付款或兌現<br>© 2026 包廂熱場活動系統
+            BetPanel · 正負活動積分不可購買、轉讓或兌換 · 平台不建立任何應收、應付或主持人收益<br>© 2026 現場互動預測積分平台
         </footer>
 
     </div>
@@ -326,7 +326,7 @@
                     joinRoom(code);
                 } else {
                     SoundEngine.playError();
-                    showToast('請輸入正確的 6 位包廂代碼', 'error');
+                    showToast('請輸入正確的 6 位活動代碼', 'error');
                 }
             });
             
@@ -364,7 +364,7 @@
             roomCode = normalizeRoomCode(roomCode);
             if (!roomCode) {
                 SoundEngine.playError();
-                showToast('包廂代碼格式不正確', 'error');
+                showToast('活動代碼格式不正確', 'error');
                 showRoomEntry();
                 return;
             }
@@ -376,12 +376,12 @@
             currentRoom = roomCode;
             localStorage.setItem(ROOM_KEY, currentRoom);
             
-            showToast(`正在進入包廂 [${currentRoom}]...`);
+            showToast(`正在進入活動 [${currentRoom}]...`);
             
             db.ref(`betpanel/rooms/${currentRoom}`).on('value', (snap) => {
                 if (!snap.exists()) {
                     SoundEngine.playError();
-                    showToast(`包廂 ${currentRoom} 不存在或已關閉`, 'error');
+                    showToast(`活動 ${currentRoom} 不存在或已關閉`, 'error');
                     leaveRoom();
                     return;
                 }
@@ -403,9 +403,9 @@
                 renderAll();
                 updateTicker();
                 if (state.status === 'archived') {
-                    showToast('此包廂已封存，目前僅提供歷史紀錄查閱', 'info');
+                    showToast('此活動已封存，目前僅提供歷史紀錄查閱', 'info');
                 } else if (isSessionExpired(state, serverNow())) {
-                    showToast('此場次已到期，目前僅提供歷史紀錄與結算結果查閱', 'info');
+                    showToast('此場次已到期，目前僅提供歷史紀錄與積分結果查閱', 'info');
                 }
             }, (error) => {
                 SoundEngine.playError();
@@ -457,17 +457,17 @@
             const recent = getRecentActivity(state, 5);
             const tickerEl = document.getElementById('tickerText');
             if (state.status === 'archived') {
-                tickerEl.textContent = `包廂 [#${currentRoom}] 已封存，目前僅提供歷史紀錄查閱。`;
+                tickerEl.textContent = `活動 [#${currentRoom}] 已封存，目前僅提供歷史紀錄查閱。`;
                 return;
             }
             if (isSessionExpired(state, serverNow())) {
-                tickerEl.textContent = `包廂 [#${currentRoom}] 場次已到期，目前僅提供歷史與結算結果查閱。`;
+                tickerEl.textContent = `活動 [#${currentRoom}] 場次已到期，目前僅提供歷史與積分結果查閱。`;
                 return;
             }
             if (recent.length === 0) {
-                tickerEl.textContent = `包廂代碼 [#${currentRoom}] 歡迎加入，開放下注中！`;
+                tickerEl.textContent = `活動代碼 [#${currentRoom}] 歡迎加入，開放預測中！`;
             } else {
-                const items = recent.map(r => `🔥 ${r.name} 下注 ${fmt(r.amount)} Pts 於 [${r.optionLabel}] (鎖定賠率 x${r.odds.toFixed(2)})`);
+                const items = recent.map(r => `🔥 ${r.name} 使用 ${fmt(r.riskPoints)} 風險分數預測 [${r.optionLabel}]`);
                 tickerEl.textContent = items.join('  │  ');
             }
         }
@@ -499,12 +499,12 @@
             const el = document.getElementById('sessionStatusDisplay');
             if (!el || !state) return;
             if (!state.expiresAt) {
-                el.textContent = '舊版房間 · 活動點數不代表金額，平台不提供收付或兌現';
+                el.textContent = '舊版活動 · 積分不可購買、轉讓或兌換';
                 return;
             }
             const remaining = state.expiresAt - serverNow();
             if (remaining <= 0) {
-                el.textContent = '場次已到期 · 僅可查閱歷史與結算結果';
+                el.textContent = '場次已到期 · 僅可查閱歷史與積分結果';
                 el.style.color = 'var(--red-bright)';
                 return;
             }
@@ -525,13 +525,13 @@
                 const isMe = betBelongsTo(b, me.authUid, me.id);
                 if (isMe) {
                     myBetCount++;
-                    myTotalStaked += b.amount;
+                    myTotalStaked += riskPointsOf(b);
                     
                     const outcome = betOutcome(state, pools, b);
                     if (outcome.status === 'pending') {
-                        myPendingAmount += b.amount;
+                        myPendingAmount += riskPointsOf(b);
                     } else if (outcome.status === 'win' || outcome.status === 'lose') {
-                        mySettledPnL += outcome.profit;
+                        mySettledPnL += outcome.score;
                     }
                 }
             });
@@ -590,10 +590,10 @@
             
             let statusBadge = '';
             if (isArchived) statusBadge = '<span class="badge badge-locked">📦 已封存</span>';
-            else if (isSettled) statusBadge = '<span class="badge badge-settled">🏁 已派彩結算</span>';
+            else if (isSettled) statusBadge = '<span class="badge badge-settled">🏁 已公布結果</span>';
             else if (sessionExpired) statusBadge = '<span class="badge badge-locked">⏱ 場次已到期</span>';
-            else if (isOpen) statusBadge = '<span class="badge badge-open">🟢 開放下注</span>';
-            else if (isLocked) statusBadge = '<span class="badge badge-locked">🔒 已封盤</span>';
+            else if (isOpen) statusBadge = '<span class="badge badge-open">🟢 開放預測</span>';
+            else if (isLocked) statusBadge = '<span class="badge badge-locked">🔒 已截止</span>';
             
             let html = `
                 <div class="card market-card ${isSettled ? 'settled-card' : ''}" id="market-${m.id}">
@@ -604,7 +604,7 @@
                         </div>
                         <div class="text-right">
                             ${statusBadge}
-                            <div class="text-dim" style="font-size: 0.75rem; margin-top: 4px;">活動點數: ${fmt(totalPool)} Pts</div>
+                            <div class="text-dim" style="font-size: 0.75rem; margin-top: 4px;">風險分數: ${fmt(totalPool)} Pts</div>
                         </div>
                     </div>
                     
@@ -619,9 +619,6 @@
                 const poolAmt = poolOf(pools, m.id, opt.id);
                 const poolPercent = totalPool > 0 ? (poolAmt / totalPool) * 100 : 0;
                 
-                const oddsObj = liveOdds(pools, m, opt.id);
-                const oddsVal = oddsObj.value.toFixed(2);
-                
                 html += `
                     <div class="option-card ${isSelected ? 'selected' : ''} ${isWinner ? 'winner' : ''}" 
                          onclick="${isOpen ? `selectOptionCard('${m.id}', '${opt.id}')` : ''}">
@@ -631,12 +628,10 @@
                             <div class="option-name">
                                 ${isSelected ? '✅ ' : ''}${isWinner ? '👑 ' : ''}${esc(opt.label)}
                             </div>
-                            <div class="option-meta">投注占比: ${poolPercent.toFixed(1)}% (池: ${fmt(poolAmt)} Pts)</div>
+                            <div class="option-meta">預測占比: ${poolPercent.toFixed(1)}%（風險分數 ${fmt(poolAmt)} Pts）</div>
                         </div>
                         
-                        <div class="option-odds-box">
-                            <div class="odds-chip">x${oddsVal}</div>
-                        </div>
+                        <div class="option-odds-box"><div class="odds-chip">${isSignedScoreMarket(m) ? `答對 +${marketOptionCount(m)-1}R` : '舊版'}</div></div>
                     </div>
                 `;
             });
@@ -649,21 +644,26 @@
                 const currentDraftAmt = draftAmounts[m.id] || '';
                 const amountNum = parseInt(currentDraftAmt) || 0;
                 
-                let estPayout = 0;
-                let estProfit = 0;
+                let estCorrectScore = 0;
+                let estIncorrectScore = 0;
                 if (selectedOptObj && amountNum > 0) {
-                    const currentOdds = liveOdds(pools, m, selectedOptObj.id).value;
-                    estPayout = payoutForBet({ amount: amountNum, oddsAtBet: currentOdds }, m);
-                    estProfit = roundPoints(estPayout - amountNum);
+                    if (isSignedScoreMarket(m)) {
+                        const preview = scorePreview(amountNum, m);
+                        estCorrectScore = preview.correct;
+                        estIncorrectScore = preview.incorrect;
+                    } else {
+                        estCorrectScore = correctScoreForPrediction({ amount: amountNum, oddsAtBet: selectedOptObj.odds }, m);
+                        estIncorrectScore = -amountNum;
+                    }
                 }
                 
                 html += `
                     <div class="bet-drawer">
                         <div class="form-group mb-2">
                             <label style="font-size: 0.8rem; color: var(--gold-bright);">
-                                ${selectedOptObj ? `已選擇選項: 【${esc(selectedOptObj.label)}】` : '👉 請先點擊上方選項卡片以進行投注'}
+                                ${selectedOptObj ? `已選擇結果: 【${esc(selectedOptObj.label)}】` : '👉 請先點擊上方選項，再輸入本次風險分數'}
                             </label>
-                            <input type="number" id="amt-${m.id}" class="input-control" placeholder="輸入活動點數（無餘額限制）..."
+                            <input type="number" id="amt-${m.id}" class="input-control" placeholder="輸入風險分數（不需要預先持有點數）..."
                                    value="${currentDraftAmt}" oninput="updateDraftAmount('${m.id}', this.value)">
                         </div>
                         
@@ -676,13 +676,13 @@
                         
                         ${selectedOptObj && amountNum > 0 ? `
                             <div class="payout-preview">
-                                <span>估計點數回報: <strong class="text-gold">${fmt(estPayout)} Pts</strong></span>
-                                <span>預計點數純利: <strong class="text-green">+${fmt(estProfit)} Pts</strong></span>
+                                <span>預測正確：<strong class="text-green">+${fmt(estCorrectScore)} Pts</strong></span>
+                                <span>預測錯誤：<strong style="color:var(--red-bright)">${fmt(estIncorrectScore)} Pts</strong></span>
                             </div>
                         ` : ''}
                         
-                        <button class="btn btn-gold w-100 py-3" onclick="placeBet('${m.id}')" ${!selectedOptId ? 'disabled style="opacity:0.5;"' : ''}>
-                            🎯 確認登錄 ${selectedOptObj ? `[${fmt(amountNum)} Pts]` : ''}
+                        <button class="btn btn-gold w-100 py-3" onclick="submitPrediction('${m.id}')" ${!selectedOptId ? 'disabled style="opacity:0.5;"' : ''}>
+                            🎯 提交預測 ${selectedOptObj ? `[風險 ${fmt(amountNum)} Pts]` : ''}
                         </button>
                     </div>
                 `;
@@ -716,28 +716,27 @@
             if (!body || !summary || !state) return;
             const bets = [...(state.bets || [])].sort((a, b) => (b.ts || 0) - (a.ts || 0));
             let accepted = 0;
-            let settled = 0;
-            let hostNet = 0;
+            let participantNetScore = 0;
             bets.forEach(b => {
-                accepted += Number(b.amount) || 0;
+                accepted += riskPointsOf(b);
                 const m = state.markets.find(x => x.id === b.marketId);
                 if (m && m.settled) {
-                    settled += Number(b.amount) || 0;
-                    hostNet -= betOutcome(state, pools, b).profit;
+                    participantNetScore += betOutcome(state, pools, b).score;
                 }
             });
-            summary.innerHTML = `已登錄 <strong>${fmt(accepted)} Pts</strong><br>已結算主持人點數損益 <strong style="color:${hostNet >= 0 ? 'var(--green)' : 'var(--red-bright)'}">${hostNet >= 0 ? '+' : ''}${fmt(hostNet)} Pts</strong>`;
+            summary.innerHTML = `累計風險 <strong>${fmt(accepted)} Pts</strong><br>全體已公布淨積分 <strong style="color:${participantNetScore >= 0 ? 'var(--green)' : 'var(--red-bright)'}">${participantNetScore >= 0 ? '+' : ''}${fmt(participantNetScore)} Pts</strong>`;
             if (!bets.length) {
-                body.innerHTML = '<tr><td colspan="6" class="text-center text-dim">尚無公開下注紀錄</td></tr>';
+                body.innerHTML = '<tr><td colspan="6" class="text-center text-dim">尚無公開預測紀錄</td></tr>';
                 return;
             }
             body.innerHTML = bets.map(b => {
                 const m = state.markets.find(x => x.id === b.marketId);
                 const opt = m && m.options.find(x => x.id === b.optionId);
                 const outcome = betOutcome(state, pools, b);
-                const status = outcome.status === 'win' ? '🎉 中獎' : (outcome.status === 'lose' ? '未中' : '⏳ 待結算');
+                const status = outcome.status === 'win' ? '🟢 正分' : (outcome.status === 'lose' ? '🔴 負分' : '⏳ 待公布');
                 const bettor = b.name ? esc(b.name) : '匿名#' + esc(String(b.bettorId || '').slice(-6));
-                return `<tr><td class="text-dim">${new Date(b.ts || Date.now()).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</td><td>${bettor}</td><td><span class="text-cyan">${esc(m ? m.title : '未知盤口')}</span><br><span class="text-dim">${esc(opt ? opt.label : b.optionId)}</span></td><td class="text-right font-mono">${fmt(b.amount)} Pts</td><td class="text-right font-mono text-gold">x${betOdds(b).toFixed(2)}</td><td class="text-center">${status}</td></tr>`;
+                const possiblePositive = m ? correctScoreForPrediction(b, m) : 0;
+                return `<tr><td class="text-dim">${new Date(b.ts || Date.now()).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</td><td>${bettor}</td><td><span class="text-cyan">${esc(m ? m.title : '未知題目')}</span><br><span class="text-dim">${esc(opt ? opt.label : b.optionId)}</span></td><td class="text-right font-mono">${fmt(riskPointsOf(b))} Pts</td><td class="text-right font-mono text-gold">+${fmt(possiblePositive)} Pts</td><td class="text-center">${status}</td></tr>`;
             }).join('');
         }
         function renderMyBets() {
@@ -757,7 +756,7 @@
             let html = '';
             myBets.reverse().forEach(b => {
                 const m = state.markets.find(x => x.id === b.marketId);
-                const mTitle = m ? m.title : '未知盤口';
+                const mTitle = m ? m.title : '未知題目';
                 
                 const opt = m ? m.options.find(o => o.id === b.optionId) : null;
                 const optLabel = opt ? opt.label : b.optionId;
@@ -769,15 +768,15 @@
                 let pnlClass = '';
                 
                 if (outcome.status === 'pending') {
-                    statusBadge = '<span class="badge badge-locked">⏳ 待開盤</span>';
+                    statusBadge = '<span class="badge badge-locked">⏳ 待公布</span>';
                     pnlStr = '-';
                 } else if (outcome.status === 'win') {
-                    statusBadge = '<span class="badge badge-open">🎉 中獎</span>';
-                    pnlStr = '+' + fmt(outcome.profit) + ' Pts';
+                    statusBadge = '<span class="badge badge-open">🟢 正分</span>';
+                    pnlStr = '+' + fmt(outcome.score) + ' Pts';
                     pnlClass = 'color: var(--green); font-weight: bold;';
                 } else if (outcome.status === 'lose') {
-                    statusBadge = '<span class="badge badge-settled">未中</span>';
-                    pnlStr = '-' + fmt(b.amount) + ' Pts';
+                    statusBadge = '<span class="badge badge-settled">🔴 負分</span>';
+                    pnlStr = fmt(outcome.score) + ' Pts';
                     pnlClass = 'color: var(--red-bright);';
                 }
                 
@@ -788,8 +787,8 @@
                         <td class="text-dim" style="font-size: 0.8rem;">${timeStr}</td>
                         <td style="font-weight: 600;">${esc(mTitle)}</td>
                         <td style="color: var(--cyan-bright); font-weight: 600;">${esc(optLabel)}</td>
-                        <td class="text-right font-mono">${fmt(b.amount)} Pts</td>
-                        <td class="text-right font-mono text-gold">x${betOdds(b).toFixed(2)}</td>
+                        <td class="text-right font-mono">${fmt(riskPointsOf(b))} Pts</td>
+                        <td class="text-right font-mono text-gold">+${fmt(m ? correctScoreForPrediction(b, m) : 0)} Pts</td>
                         <td class="text-center">${statusBadge}</td>
                         <td class="text-right font-mono" style="${pnlClass}">${pnlStr}</td>
                     </tr>
@@ -799,10 +798,10 @@
             tbody.innerHTML = html;
         }
 
-        async function placeBet(marketId) {
+        async function submitPrediction(marketId) {
             if (!firebaseReady || !currentRoom) {
                 SoundEngine.playError();
-                showToast('尚未連線至包廂', 'error');
+                showToast('尚未連線至活動', 'error');
                 return;
             }
             
@@ -816,14 +815,14 @@
             const optionId = selectedOptions[marketId];
             if (!optionId) {
                 SoundEngine.playError();
-                showToast('請先點擊選擇一個投注選項', 'warning');
+                showToast('請先選擇一個預測結果', 'warning');
                 return;
             }
             
-            const amount = parseInt(draftAmounts[marketId]);
-            if (isNaN(amount) || amount <= 0) {
+            const riskPoints = parseInt(draftAmounts[marketId]);
+            if (isNaN(riskPoints) || riskPoints <= 0) {
                 SoundEngine.playError();
-                showToast('請輸入有效的活動點數', 'warning');
+                showToast('請輸入有效的風險分數', 'warning');
                 return;
             }
             
@@ -832,57 +831,63 @@
             
             if (state.status === 'archived' || isSessionExpired(state, serverNow()) || m.archived || m.locked || m.settled) {
                 SoundEngine.playError();
-                showToast(isSessionExpired(state, serverNow()) ? '6 小時場次已到期，不能再登錄' : '盤口已封盤或已結算', 'error');
+                showToast(isSessionExpired(state, serverNow()) ? '6 小時場次已到期，不能再提交' : '預測題目已截止或已公布結果', 'error');
                 return;
             }
 
             try {
                 const freshSnap = await db.ref(`betpanel/rooms/${currentRoom}`).once('value');
                 const freshRaw = freshSnap.val();
-                if (!freshRaw) throw new Error("包廂資料遺失");
+                if (!freshRaw) throw new Error("活動資料遺失");
                 
                 const freshState = normalize(freshRaw);
                 const freshM = freshState.markets.find(x => x.id === marketId);
                 
                 if (!freshM || freshState.status === 'archived' || isSessionExpired(freshState, serverNow()) || freshM.archived || freshM.locked || freshM.settled) {
                     SoundEngine.playError();
-                    showToast('下注失敗：盤口已關閉或結算', 'error');
+                    showToast('提交失敗：預測題目已截止或公布結果', 'error');
                     return;
                 }
                 
-                const valRes = validateBetAmount(amount, effectiveMaxBet(freshState, freshM));
+                const valRes = validateRiskPoints(riskPoints, effectiveMaxRiskPoints(freshState, freshM));
                 if (!valRes.ok) {
                     SoundEngine.playError();
                     showToast(valRes.reason, 'error');
                     return;
                 }
                 
-                const freshPools = buildPools(freshState);
                 const freshOption = freshM.options.find(option => option.id === optionId);
                 if (!freshOption) {
                     SoundEngine.playError();
-                    showToast('下注失敗：選項已不存在', 'error');
+                    showToast('提交失敗：選項已不存在', 'error');
                     return;
                 }
 
-                const oddsObj = liveOdds(freshPools, freshM, optionId);
-                const lockedOdds = oddsObj.value;
-                
-                const newBet = {
+                const prediction = {
                     marketId: marketId,
                     optionId: optionId,
                     name: me.name,
                     bettorId: me.id,
                     bettorUid: authUser.uid,
-                    amount: amount,
-                    oddsAtBet: lockedOdds,
                     ts: firebase.database.ServerValue.TIMESTAMP
                 };
+                if (isSignedScoreMarket(freshM)) {
+                    prediction.riskPoints = riskPoints;
+                    prediction.scoringMode = SCORE_MODE;
+                    prediction.scoreMultiplierAtPrediction = Math.max(1, marketOptionCount(freshM) - 1);
+                } else {
+                    // 舊房相容：保留原市場已鎖定的欄位，讓既有題目能完成生命週期。
+                    prediction.amount = riskPoints;
+                    prediction.oddsAtBet = Number(freshOption.odds) || LEGACY_DEFAULT_ODDS;
+                }
                 
-                await db.ref(`betpanel/rooms/${currentRoom}/bets`).push(newBet);
+                await db.ref(`betpanel/rooms/${currentRoom}/bets`).push(prediction);
                 
                 SoundEngine.playBet();
-                showToast(`🎉 投注成功! 鎖定賠率 x${lockedOdds.toFixed(2)}`, 'success');
+                const preview = isSignedScoreMarket(freshM)
+                    ? scorePreview(riskPoints, freshM)
+                    : { correct: correctScoreForPrediction(prediction, freshM), incorrect: -riskPoints };
+                showToast(`預測已提交：答對 +${fmt(preview.correct)}／答錯 ${fmt(preview.incorrect)} Pts`, 'success');
                 
                 draftAmounts[marketId] = "";
                 renderAll();
@@ -890,7 +895,7 @@
             } catch (err) {
                 console.error(err);
                 SoundEngine.playError();
-                showToast('網路錯誤，下注失敗', 'error');
+                showToast('網路錯誤，預測提交失敗', 'error');
             }
         }
 

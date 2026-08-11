@@ -5,7 +5,7 @@ const test = require('node:test');
 
 const app = require('../app.js');
 
-test('payout deducts rake from profit only and rounds to two decimals', () => {
+test('legacy fixed-odds records remain readable with their original calculation', () => {
   assert.equal(
     app.payoutForBet({ amount: 100, oddsAtBet: 2 }, { rakePercent: 0.05 }),
     195
@@ -16,10 +16,20 @@ test('payout deducts rake from profit only and rounds to two decimals', () => {
   );
 });
 
+test('option-count scoring keeps the original zero-rake net result as signed points', () => {
+  const twoOptions = { scoringMode: app.SCORE_MODE, optionCount: 2, options: [{ id: 'a' }, { id: 'b' }] };
+  const threeOptions = { scoringMode: app.SCORE_MODE, optionCount: 3, options: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] };
+  const fourOptions = { scoringMode: app.SCORE_MODE, optionCount: 4, options: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }] };
+
+  assert.deepEqual(app.scorePreview(100, twoOptions), { correct: 100, incorrect: -100, multiplier: 1, optionCount: 2 });
+  assert.deepEqual(app.scorePreview(100, threeOptions), { correct: 200, incorrect: -100, multiplier: 2, optionCount: 3 });
+  assert.deepEqual(app.scorePreview(100, fourOptions), { correct: 300, incorrect: -100, multiplier: 3, optionCount: 4 });
+});
+
 test('normalize preserves room ownership and archive state', () => {
   const state = app.normalize({
     config: {
-      hostName: '莊家',
+      hostName: '主持人',
       hostUid: 'host-uid',
       status: 'archived',
       archivedAt: 123
@@ -33,9 +43,12 @@ test('normalize preserves room ownership and archive state', () => {
 
 test('single-session rooms last six hours while legacy rooms remain compatible', () => {
   const activatedAt = 1_000_000;
-  const room = app.createRoom('主持人', '測試活動', 0.05, 1000, 'host-1', activatedAt);
+  const room = app.createRoom('主持人', '測試活動', 1000, 'host-1', activatedAt);
   assert.equal(room.billingMode, 'single_room_6h_twd_200');
   assert.equal(room.sessionPriceTwd, 200);
+  assert.equal(room.scoringMode, app.SCORE_MODE);
+  assert.equal(room.maxRiskPoints, 1000);
+  assert.equal('rakePercent' in room, false);
   assert.equal(room.expiresAt - room.activatedAt, 6 * 60 * 60 * 1000);
   assert.equal(app.isSessionExpired(room, room.expiresAt - 1), false);
   assert.equal(app.isSessionExpired(room, room.expiresAt), true);
@@ -58,21 +71,26 @@ test('reports keep same-name users separate and do not exclude host-name collisi
     id: 'm1',
     settled: true,
     winnerId: 'win',
-    rakePercent: 0,
-    options: [{ id: 'win', label: '勝', odds: 2 }, { id: 'lose', label: '負', odds: 2 }]
+    scoringMode: app.SCORE_MODE,
+    optionCount: 2,
+    options: [{ id: 'win', label: '勝' }, { id: 'lose', label: '負' }]
   };
   const state = {
     hostName: '同名',
     markets: [market],
     bets: [
-      { bettorUid: 'u1', name: '同名', marketId: 'm1', optionId: 'win', amount: 100, oddsAtBet: 2 },
-      { bettorUid: 'u2', name: '同名', marketId: 'm1', optionId: 'lose', amount: 100, oddsAtBet: 2 }
+      { bettorUid: 'u1', name: '同名', marketId: 'm1', optionId: 'win', riskPoints: 100, scoreMultiplierAtPrediction: 1 },
+      { bettorUid: 'u2', name: '同名', marketId: 'm1', optionId: 'lose', riskPoints: 100, scoreMultiplierAtPrediction: 1 }
     ]
   };
   const pools = app.buildPools(state);
 
   assert.equal(app.reportByBettor(state, pools).length, 2);
-  assert.equal(app.roomSettlement(state, pools).players.length, 2);
+  const settlement = app.roomSettlement(state, pools);
+  assert.equal(settlement.players.length, 2);
+  assert.equal(settlement.participantNetScore, 0);
+  assert.equal('hostNet' in settlement, false);
+  assert.equal('hostRake' in settlement, false);
 });
 
 test('banker archive flow keeps market and bet records', () => {
@@ -92,6 +110,19 @@ test('front end has no stored-value, redeem-code, or referral data writes', () =
   assert.doesNotMatch(banker, /betpanel\/hosts|betpanel\/redeemCodes|referralCode|btnRedeem|btnBindUpline/);
   assert.match(banker, /billingMode:\s*'single_room_6h_twd_200'/);
   assert.match(banker, /expiresAt:\s*activatedAt \+ SESSION_DURATION_MS/);
+});
+
+test('commercial UI uses signed risk scores without odds, rake, payout, or host accounting', () => {
+  const player = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const banker = fs.readFileSync(path.join(__dirname, '..', 'banker.html'), 'utf8');
+  assert.match(player, /riskPoints/);
+  assert.match(player, /scoreMultiplierAtPrediction/);
+  assert.match(banker, /scoringMode:\s*SCORE_MODE/);
+  assert.match(banker, /optionCount:\s*optionsArr\.length/);
+  for (const source of [player, banker]) {
+    assert.doesNotMatch(source, /x\d+\.\d+|抽水率|結算派彩|主持人點數損益|莊家收益拆算/);
+    assert.match(source, /app\.js\?v=signed-score1/);
+  }
 });
 
 test('both pages use Firebase server time for session expiry UI', () => {

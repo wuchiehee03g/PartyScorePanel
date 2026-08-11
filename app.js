@@ -1,7 +1,7 @@
 /**
- * BetPanel · 包廂熱場投注系統
- * 核心引擎 (Core Engine v3.1 - Single Session Edition)
- * 包含：單場授權、固定賠率、無餘額活動點數、結算帳本與 Web Audio 音效
+ * BetPanel · 現場互動預測積分平台
+ * 核心引擎 (Core Engine v4.0 - Signed Score Edition)
+ * 包含：單場授權、自訂風險分數、選項數計分、參與者積分報表與 Web Audio 音效
  */
 
 const firebaseConfig = {
@@ -14,31 +14,26 @@ const firebaseConfig = {
 };
 
 const DB_PATH = 'betpanel';
-const DEFAULT_ODDS = 2;
-const DEFAULT_PRIOR_K = 20000;
-const DEFAULT_MAX_BET = 10000;
-const MAX_AUTO_ODDS = 50;
-const MIN_AUTO_ODDS = 1.01;
+const LEGACY_DEFAULT_ODDS = 2;
+const DEFAULT_MAX_RISK_POINTS = 10000;
 const QUICK_AMOUNTS = [100, 500, 1000, 5000];
-const DEFAULT_RAKE = 0.05; // 預設 5% 抽水
 const SESSION_PRICE_TWD = 200;
 const SESSION_DURATION_MS = 6 * 60 * 60 * 1000;
-
-const RAKE_OPTIONS = [0, 0.03, 0.05, 0.10]; // 0%, 3%, 5%, 10%
+const SCORE_MODE = 'option_count_net_v1';
 
 const CATEGORIES = [
-  { key: 'duel', label: '1v1 對決', hint: '兩人對決，押誰贏' },
-  { key: 'multi', label: '多選一', hint: '多個選項，押誰勝出' },
-  { key: 'custom', label: '自訂盤口', hint: '自由設定選項與賠率' },
+  { key: 'duel', label: '1v1 對決', hint: '兩人對決，預測誰勝出' },
+  { key: 'multi', label: '多選一', hint: '選項愈多，正確淨分愈高' },
+  { key: 'custom', label: '自訂題目', hint: '自由設定預測選項' },
 ];
 
-// 夜店/包廂熱門預設盤口
+// 夜店／包廂熱門預測題目
 const NIGHTLIFE_PRESETS = [
-  { id:'dice_duel', group:'dice', title:'吹牛對決 (1v1)', desc:'輪流喊數並可質疑，依現場約定判定勝負', category:'duel', options:[{label:'選手 A',odds:2.00},{label:'選手 B',odds:2.00}] },
-  { id:'niuniu', group:'dice', title:'妞妞（牛牛）', desc:'常見五張牌玩法：三張湊十的倍數，剩兩張比牛數；牌型依現場規則', category:'duel', options:[{label:'玩家勝',odds:2.00},{label:'莊家勝',odds:2.00}] },
-  { id:'sicbo', group:'dice', title:'骰寶', desc:'三顆骰子開盅；總和 4–10 為小、11–17 為大，圍骰另計', category:'custom', options:[{label:'大 (11-17)',odds:2.00},{label:'小 (4-10)',odds:2.00},{label:'圍骰／豹子 (三同數)',odds:5.00}] },
-  { id:'blackjack', group:'dice', title:'21 點', desc:'目標接近 21 且不爆牌；玩家、莊家或和局，採事前約定的補牌規則', category:'multi', options:[{label:'玩家勝',odds:2.00},{label:'莊家勝',odds:2.00},{label:'和局',odds:8.00}] },
-  { id:'eighteen', group:'dice', title:'十八啦', desc:'常見四骰玩法會依配對與剩餘點數計分；骰子數與特殊牌型請於盤口說明' , category:'duel', options:[{label:'玩家／閒家勝',odds:2.00},{label:'莊家勝',odds:2.00}] },
+  { id:'dice_duel', group:'dice', title:'吹牛對決 (1v1)', desc:'輪流喊數並可質疑，依現場約定判定勝負', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'niuniu', group:'dice', title:'妞妞（牛牛）', desc:'常見五張牌玩法：三張湊十的倍數，剩兩張比牛數；牌型以本局主持人說明為準', category:'duel', options:[{label:'玩家勝'},{label:'主持人方勝'}] },
+  { id:'sicbo', group:'dice', title:'骰寶', desc:'常見為三顆骰子：總和 4–10 為小、11–17 為大，圍骰另計；以本局主持人說明為準', category:'custom', options:[{label:'大 (11-17)'},{label:'小 (4-10)'},{label:'圍骰／豹子 (三同數)'}] },
+  { id:'blackjack', group:'dice', title:'21 點', desc:'常見玩法以接近 21 且不爆牌為目標；補牌與和局規則以本局主持人說明為準', category:'multi', options:[{label:'玩家勝'},{label:'主持人方勝'},{label:'和局'}] },
+  { id:'eighteen', group:'dice', title:'十八啦', desc:'常見為四骰配對與剩餘點數計分，地方規則差異較大；以本局主持人說明為準', category:'duel', options:[{label:'玩家方勝'},{label:'主持人方勝'}] },
 
 
 
@@ -46,16 +41,16 @@ const NIGHTLIFE_PRESETS = [
 
 
 
-  { id:'singapore_punch', group:'punch', title:'新加坡拳', desc:'常見為拍手、猜拳決定攻守，再比上下左右；同向續攻、不同向換攻', category:'duel', options:[{label:'選手 A',odds:2.00},{label:'選手 B',odds:2.00}] },
-  { id:'punch_5_10_15', group:'punch', title:'5／10／15 划拳', desc:'雙手以 0／5 出拳並喊總數；連續猜中者依現場規則勝出，不是局數', category:'duel', options:[{label:'選手 A',odds:2.00},{label:'選手 B',odds:2.00}] },
-  { id:'seaweed_punch', group:'punch', title:'海帶拳', desc:'常見口訣為「海帶呀海帶」，依手勢相同與否輪流攻守；各店口訣可不同', category:'duel', options:[{label:'選手 A',odds:2.00},{label:'選手 B',odds:2.00}] },
-  { id:'drink_speed', group:'challenge', title:'喝酒速度挑戰', desc:'同樣份量，預測誰先完成；可替換無酒精飲品', category:'duel', options:[{label:'選手 A',odds:2.00},{label:'選手 B',odds:2.00}] },
-  { id:'drink_volume', group:'challenge', title:'限時飲用量挑戰', desc:'同樣時間，預測誰完成更多；可替換無酒精飲品', category:'duel', options:[{label:'選手 A',odds:2.00},{label:'選手 B',odds:2.00}] },
-  { id:'drink_target', group:'challenge', title:'指定杯數挑戰', desc:'預測誰先完成指定杯數；可替換無酒精飲品', category:'duel', options:[{label:'選手 A',odds:2.00},{label:'選手 B',odds:2.00}] },
-  { id:'ktv_score', group:'challenge', title:'KTV 歡唱評分對決', desc:'下一首歌是否突破 90 分', category:'custom', options:[{label:'高分突破 (>=90)',odds:2.10},{label:'未達標準 (<90)',odds:1.75}] },
-  { id:'king_mild', group:'king', title:'國王大冒險｜輕度', desc:'輕度互動挑戰，可改為非酒精任務', category:'multi', options:[{label:'指定唱歌',odds:4.00},{label:'趣味問答',odds:4.00},{label:'模仿動作',odds:4.00},{label:'分享故事',odds:4.00}] },
-  { id:'king_medium', group:'king', title:'國王大冒險｜中度', desc:'中度互動挑戰，先確認參與者同意', category:'multi', options:[{label:'即興表演',odds:4.00},{label:'指定舞步',odds:4.00},{label:'真心話',odds:4.00},{label:'團體任務',odds:4.00}] },
-  { id:'king_extreme', group:'king', title:'國王大冒險｜高強度', desc:'高強度僅作展示，禁止危險或強迫飲酒', category:'multi', options:[{label:'高難度表演',odds:4.00},{label:'團體接力',odds:4.00},{label:'即興挑戰',odds:4.00},{label:'安全替代任務',odds:4.00}] }
+  { id:'singapore_punch', group:'punch', title:'新加坡拳', desc:'常見為拍手、猜拳決定攻守，再比上下左右；以本局主持人說明為準', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'punch_5_10_15', group:'punch', title:'5／10／15 划拳', desc:'常見為雙手以 0／5 出拳並喊總數，不是局數；以本局主持人說明為準', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'seaweed_punch', group:'punch', title:'海帶拳', desc:'常見使用「海帶呀海帶」口訣與手勢攻守輪替；以本局主持人說明為準', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'drink_speed', group:'challenge', title:'飲品速度挑戰', desc:'同樣份量，預測誰先完成；請以安全、適量或無酒精飲品進行', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'drink_volume', group:'challenge', title:'限時飲用量挑戰', desc:'同樣時間，預測誰完成更多；請以安全、適量或無酒精飲品進行', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'drink_target', group:'challenge', title:'指定杯數挑戰', desc:'預測誰先完成指定杯數；請以安全、適量或無酒精飲品進行', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'ktv_score', group:'challenge', title:'KTV 歡唱評分對決', desc:'預測下一首歌是否突破 90 分', category:'custom', options:[{label:'高分突破 (>=90)'},{label:'未達標準 (<90)'}] },
+  { id:'king_mild', group:'king', title:'國王大冒險｜輕度', desc:'輕度互動挑戰，請先取得參與者同意', category:'multi', options:[{label:'指定唱歌'},{label:'趣味問答'},{label:'模仿動作'},{label:'分享故事'}] },
+  { id:'king_medium', group:'king', title:'國王大冒險｜中度', desc:'中度互動挑戰，請先取得參與者同意', category:'multi', options:[{label:'即興表演'},{label:'指定舞步'},{label:'真心話'},{label:'團體任務'}] },
+  { id:'king_extreme', group:'king', title:'國王大冒險｜高強度', desc:'高強度活動僅作展示，禁止危險、羞辱或強迫飲酒', category:'multi', options:[{label:'高難度表演'},{label:'團體接力'},{label:'即興挑戰'},{label:'安全替代任務'}] }
 ];
 
 /* =========================================
@@ -154,14 +149,14 @@ const SoundEngine = {
 };
 
 /* =========================================
- * 3. 莊家工作階段識別 (Host Session Identity)
+ * 3. 主持人工作階段識別 (Host Session Identity)
  * ========================================= */
 
 function createHostProfile(hostName, hostId = null) {
   const id = hostId || 'host_' + Math.random().toString(36).substring(2, 9);
   return {
     hostId: id,
-    hostName: hostName || '尊榮莊家',
+    hostName: hostName || '活動主持人',
     createdAt: Date.now()
   };
 }
@@ -187,22 +182,22 @@ function generateRoomPin() {
   return res;
 }
 
-function createRoom(hostName, roomTitle = '', rakePercent = DEFAULT_RAKE, maxBet = DEFAULT_MAX_BET, hostId = null, activatedAt = Date.now()) {
+function createRoom(hostName, roomTitle = '', maxRiskPoints = DEFAULT_MAX_RISK_POINTS, hostId = null, activatedAt = Date.now()) {
   return {
     code: generateRoomCode(),
-    hostName: hostName || '包廂莊家',
+    hostName: hostName || '活動主持人',
     hostId: hostId || 'host_anon',
-    roomTitle: roomTitle || 'VIP 尊榮投注包廂',
+    roomTitle: roomTitle || '現場互動活動',
     hostPin: generateRoomPin(),
-    rakePercent: Number(rakePercent),
     status: 'active',
     accessMode: 'demo',
     billingMode: 'single_room_6h_twd_200',
+    scoringMode: SCORE_MODE,
     sessionPriceTwd: SESSION_PRICE_TWD,
     activatedAt,
     expiresAt: activatedAt + SESSION_DURATION_MS,
     createdAt: activatedAt,
-    maxBet: Number(maxBet),
+    maxRiskPoints: Number(maxRiskPoints),
     markets: {},
     bets: {}
   };
@@ -226,24 +221,27 @@ function isSessionActive(state, at = Date.now()) {
  * ========================================= */
 
 function normalize(raw) {
-  if (!raw) return { markets: [], bets: [], hostName: '包廂莊家', roomTitle: 'VIP 包廂' };
+  if (!raw) return { markets: [], bets: [], hostName: '活動主持人', roomTitle: '現場互動活動' };
   
   const config = raw.config || {};
   const state = {
-    hostName: config.hostName || raw.hostName || '包廂莊家',
+    hostName: config.hostName || raw.hostName || '活動主持人',
     hostId: config.hostId || raw.hostId || '',
     hostUid: config.hostUid || raw.hostUid || '',
-    roomTitle: config.roomTitle || raw.roomTitle || 'VIP 尊榮投注包廂',
+    roomTitle: config.roomTitle || raw.roomTitle || '現場互動活動',
     hostPin: config.pin || raw.hostPin || '',
     status: config.status || raw.status || 'active',
     accessMode: config.accessMode || raw.accessMode || 'legacy',
+    scoringMode: config.scoringMode || raw.scoringMode || 'legacy_fixed_odds',
     sessionPriceTwd: Number.isFinite(Number(config.sessionPriceTwd)) ? Number(config.sessionPriceTwd) : null,
     activatedAt: Number(config.activatedAt || raw.activatedAt || config.createdAt || raw.createdAt) || null,
     expiresAt: Number(config.expiresAt || raw.expiresAt) || null,
     archivedAt: config.archivedAt || raw.archivedAt || null,
-    rakePercent: typeof config.rake === 'number' ? (config.rake / 100) : (typeof raw.rakePercent === 'number' ? raw.rakePercent : DEFAULT_RAKE),
+    rakePercent: typeof config.rake === 'number' ? (config.rake / 100) : (typeof raw.rakePercent === 'number' ? raw.rakePercent : 0),
     createdAt: config.createdAt || raw.createdAt || Date.now(),
-    maxBet: typeof config.maxBet === 'number' ? config.maxBet : (typeof raw.maxBet === 'number' ? raw.maxBet : DEFAULT_MAX_BET),
+    maxRiskPoints: typeof config.maxRiskPoints === 'number'
+      ? config.maxRiskPoints
+      : (typeof config.maxBet === 'number' ? config.maxBet : (typeof raw.maxBet === 'number' ? raw.maxBet : DEFAULT_MAX_RISK_POINTS)),
     markets: [],
     bets: [],
     updates: []
@@ -259,7 +257,14 @@ function normalize(raw) {
       const options = m.options 
         ? Object.keys(m.options).map(oId => ({ ...m.options[oId], id: oId })).sort((a, b) => (a.order || 0) - (b.order || 0))
         : [];
-      return { ...m, id: mId, options };
+      return {
+        ...m,
+        id: mId,
+        options,
+        scoringMode: m.scoringMode || 'legacy_fixed_odds',
+        optionCount: Number(m.optionCount) || options.length,
+        maxRiskPoints: Number(m.maxRiskPoints) || Number(m.maxBet) || null
+      };
     });
     state.markets.sort((a, b) => (a.order || 0) - (b.order || 0));
   }
@@ -275,7 +280,7 @@ function normalize(raw) {
 }
 
 /* =========================================
- * 6. 資金池計算 (Pool Calculations)
+ * 6. 風險分數彙總 (Risk Point Totals)
  * ========================================= */
 
 function buildPools(state) {
@@ -285,7 +290,7 @@ function buildPools(state) {
   for (const bet of state.bets) {
     if (!pools[bet.marketId]) pools[bet.marketId] = {};
     if (!pools[bet.marketId][bet.optionId]) pools[bet.marketId][bet.optionId] = 0;
-    pools[bet.marketId][bet.optionId] += Number(bet.amount);
+    pools[bet.marketId][bet.optionId] += riskPointsOf(bet);
   }
   return pools;
 }
@@ -301,44 +306,63 @@ function marketTotal(pools, market) {
 }
 
 /* =========================================
- * 7. 賠率引擎 (Odds Engine)
+ * 7. 選項數計分引擎 (Option-count Scoring)
  * ========================================= */
 
-function bookOverround(market) {
-  let sum = 0;
-  for (const opt of market.options) {
-    sum += 1 / (opt.odds || DEFAULT_ODDS);
+function isSignedScoreMarket(market) {
+  return !!market && market.scoringMode === SCORE_MODE;
+}
+
+function marketOptionCount(market) {
+  if (!market) return 0;
+  const count = Number(market.optionCount);
+  if (Number.isInteger(count) && count >= 2) return count;
+  return Array.isArray(market.options) ? market.options.length : 0;
+}
+
+function riskPointsOf(prediction) {
+  if (!prediction) return 0;
+  const value = prediction.riskPoints != null ? prediction.riskPoints : prediction.amount;
+  return Math.max(0, Number(value) || 0);
+}
+
+function betOdds(bet) {
+  return Number(bet && bet.oddsAtBet) || 1.0;
+}
+
+// 僅供既有固定賠率房間讀取與完成不可逆結算；新題目不再建立賠率或抽水欄位。
+function payoutForBet(bet, market) {
+  const amount = riskPointsOf(bet);
+  const grossProfit = Math.max(0, amount * betOdds(bet) - amount);
+  const rake = Math.max(0, Math.min(1, Number(market && market.rakePercent) || 0));
+  return roundPoints(amount + grossProfit * (1 - rake));
+}
+
+function scoreMultiplierForPrediction(prediction, market) {
+  if (isSignedScoreMarket(market)) {
+    const locked = Number(prediction && prediction.scoreMultiplierAtPrediction);
+    return Number.isInteger(locked) && locked >= 1 ? locked : Math.max(1, marketOptionCount(market) - 1);
   }
-  return sum;
+  return Math.max(0, betOdds(prediction) - 1);
 }
 
-function autoOdds(pools, market, optId) {
-  const O = bookOverround(market);
-  const K = typeof market.priorK === 'number' ? market.priorK : DEFAULT_PRIOR_K;
-  const S = marketTotal(pools, market);
-  const s_i = poolOf(pools, market.id, optId);
-  
-  const opt = market.options.find(o => o.id === optId);
-  if (!opt) return DEFAULT_ODDS;
-  
-  const initialOdds = opt.odds || DEFAULT_ODDS;
-  const q_i = (1 / initialOdds) / O;
-  
-  let rawOdds = (K + S) / (O * (K * q_i + s_i));
-  rawOdds = Math.max(MIN_AUTO_ODDS, Math.min(MAX_AUTO_ODDS, rawOdds));
-  return Number(rawOdds.toFixed(2));
+function correctScoreForPrediction(prediction, market) {
+  const riskPoints = riskPointsOf(prediction);
+  if (isSignedScoreMarket(market)) {
+    return roundPoints(riskPoints * scoreMultiplierForPrediction(prediction, market));
+  }
+  return roundPoints(payoutForBet(prediction, market) - riskPoints);
 }
 
-function liveOdds(pools, market, optId) {
-  const opt = market.options.find(o => o.id === optId);
-  if (!opt) return { value: DEFAULT_ODDS, auto: false, opening: DEFAULT_ODDS };
-  
-  // 預設採用開盤固定賠率；只有盤口明確寫入 true 才啟用浮動賠率。
-  const auto = market.autoPrice === true;
-  const opening = opt.odds || DEFAULT_ODDS;
-  const value = auto ? autoOdds(pools, market, optId) : opening;
-  
-  return { value, auto, opening };
+function scorePreview(riskPoints, market) {
+  const normalizedRisk = Math.max(0, Number(riskPoints) || 0);
+  const multiplier = Math.max(1, marketOptionCount(market) - 1);
+  return {
+    correct: roundPoints(normalizedRisk * multiplier),
+    incorrect: -normalizedRisk,
+    multiplier,
+    optionCount: marketOptionCount(market)
+  };
 }
 
 /* =========================================
@@ -346,50 +370,42 @@ function liveOdds(pools, market, optId) {
  * ========================================= */
 
 function buildDuelMarket(opts) {
-  const { nameA, nameB, rakePercent, priorK, maxBet, maxPerBettor, maxLiability } = opts;
-  const rake = typeof rakePercent === 'number' ? rakePercent : DEFAULT_RAKE;
-  const impliedProb = 0.5;
-  const initialOdds = 1 / impliedProb;
+  const { nameA, nameB, maxRiskPoints } = opts;
   
   return {
     title: `${nameA} vs ${nameB}`,
-    desc: '1v1 對決盤口',
+    desc: '1v1 現場預測',
     category: 'duel',
-    rakePercent: rake,
-    autoPrice: false,
-    priorK: priorK || DEFAULT_PRIOR_K,
-    maxBet: maxBet || null,
-    maxPerBettor: maxPerBettor || null,
-    maxLiability: maxLiability || null,
+    scoringMode: SCORE_MODE,
+    optionCount: 2,
+    maxRiskPoints: maxRiskPoints || null,
     locked: false,
     settled: false,
     winnerId: null,
     order: Date.now(),
     options: [
-      { id: 'optA', label: nameA, order: 1, odds: Number(initialOdds.toFixed(2)) },
-      { id: 'optB', label: nameB, order: 2, odds: Number(initialOdds.toFixed(2)) }
+      { id: 'optA', label: nameA, order: 1 },
+      { id: 'optB', label: nameB, order: 2 }
     ]
   };
 }
 
 function buildCustomMarket(opts) {
-  const { title, desc, options, rakePercent, autoPrice, priorK, maxBet } = opts;
+  const { title, desc, options, maxRiskPoints } = opts;
   
   const mOptions = options.map((opt, idx) => ({
     id: `opt${idx}`,
     label: typeof opt === 'string' ? opt : opt.label,
-    order: idx,
-    odds: Number(opt.odds || 2)
+    order: idx
   }));
   
   return {
     title,
     desc,
     category: 'custom',
-    rakePercent: typeof rakePercent === 'number' ? rakePercent : DEFAULT_RAKE,
-    autoPrice: autoPrice === true,
-    priorK: priorK || DEFAULT_PRIOR_K,
-    maxBet: maxBet || null,
+    scoringMode: SCORE_MODE,
+    optionCount: mOptions.length,
+    maxRiskPoints: maxRiskPoints || null,
     locked: false,
     settled: false,
     winnerId: null,
@@ -399,76 +415,60 @@ function buildCustomMarket(opts) {
 }
 
 /* =========================================
- * 9. 風險與結算 (Risk & Settlement)
+ * 9. 正負積分與結果結算 (Signed Score Settlement)
  * ========================================= */
 
-function betOdds(bet) {
-  return Number(bet.oddsAtBet) || 1.0;
-}
-function payoutForBet(bet, market) {
-  const amount = Number(bet.amount) || 0;
-  const grossProfit = Math.max(0, amount * betOdds(bet) - amount);
-  const rake = Math.max(0, Math.min(1, Number(market && market.rakePercent) || 0));
-  // 抽水只從中獎淨利扣除；本金完整返還，賠率在下注時固定。
-  return roundPoints(amount + grossProfit * (1 - rake));
-}
-
-function bankerNetIfWins(state, pools, market, winOptId) {
-  if (!market) return 0;
-  
-  const total = marketTotal(pools, market);
-  let payout = 0;
-  
-  for (const bet of state.bets) {
-    if (bet.marketId === market.id && bet.optionId === winOptId) {
-      payout += payoutForBet(bet, market);
-    }
-  }
-  
-  return total - payout;
+function participantNetIfResult(state, market, winOptId) {
+  if (!state || !market) return 0;
+  return roundPoints(state.bets.reduce((total, prediction) => {
+    if (prediction.marketId !== market.id) return total;
+    return total + (prediction.optionId === winOptId
+      ? correctScoreForPrediction(prediction, market)
+      : -riskPointsOf(prediction));
+  }, 0));
 }
 
-function worstCase(state, pools, market) {
-  if (!market || !market.options || market.options.length === 0) return 0;
-  
-  let worst = Infinity;
-  for (const opt of market.options) {
-    const net = bankerNetIfWins(state, pools, market, opt.id);
-    if (net < worst) {
-      worst = net;
+function resultScenario(state, market, winOptId) {
+  let positivePoints = 0;
+  let negativePoints = 0;
+  let correctCount = 0;
+  let incorrectCount = 0;
+  for (const prediction of state.bets) {
+    if (prediction.marketId !== market.id) continue;
+    if (prediction.optionId === winOptId) {
+      positivePoints += correctScoreForPrediction(prediction, market);
+      correctCount++;
+    } else {
+      negativePoints += riskPointsOf(prediction);
+      incorrectCount++;
     }
   }
-  return worst;
+  return {
+    positivePoints: roundPoints(positivePoints),
+    negativePoints: roundPoints(negativePoints),
+    netScore: roundPoints(positivePoints - negativePoints),
+    correctCount,
+    incorrectCount
+  };
 }
 
 function settleInfo(state, pools, market) {
   if (!market) return null;
   
-  const total = marketTotal(pools, market);
-  if (total === 0) {
-    return { total: 0, payoutTotal: 0, bankerNet: 0, rakeEarned: 0, winPool: 0, empty: true };
+  const totalRisk = marketTotal(pools, market);
+  if (totalRisk === 0) {
+    return { totalRisk: 0, positivePoints: 0, negativePoints: 0, netScore: 0, winRisk: 0, empty: true };
   }
   
   if (!market.winnerId) return null;
   
-  let payoutTotal = 0;
-  for (const bet of state.bets) {
-    if (bet.marketId === market.id && bet.optionId === market.winnerId) {
-      payoutTotal += payoutForBet(bet, market);
-    }
-  }
-  
-  const bankerNet = total - payoutTotal;
-  const winPool = poolOf(pools, market.id, market.winnerId);
-  const grossPayout = state.bets.filter(bet => bet.marketId === market.id && bet.optionId === market.winnerId).reduce((sum, bet) => sum + (Number(bet.amount) * Math.max(0, betOdds(bet) - 1)), 0);
-  const rakeEarned = grossPayout - Math.max(0, payoutTotal - winPool); // 只抽中獎淨利
-  
+  const scenario = resultScenario(state, market, market.winnerId);
   return {
-    total,
-    payoutTotal,
-    bankerNet,
-    rakeEarned,
-    winPool,
+    totalRisk,
+    positivePoints: scenario.positivePoints,
+    negativePoints: scenario.negativePoints,
+    netScore: scenario.netScore,
+    winRisk: poolOf(pools, market.id, market.winnerId),
     empty: false
   };
 }
@@ -476,27 +476,28 @@ function settleInfo(state, pools, market) {
 function betOutcome(state, pools, bet) {
   const market = state.markets.find(m => m.id === bet.marketId);
   if (!market || !market.settled || !market.winnerId) {
-    return { status: 'pending', profit: 0, payout: 0 };
+    return { status: 'pending', score: 0, profit: 0 };
   }
   
   if (bet.optionId === market.winnerId) {
-    const payout = payoutForBet(bet, market);
-    return { status: 'win', profit: payout - bet.amount, payout };
+    const score = correctScoreForPrediction(bet, market);
+    return { status: 'win', score, profit: score };
   } else {
-    return { status: 'lose', profit: -bet.amount, payout: 0 };
+    const score = -riskPointsOf(bet);
+    return { status: 'lose', score, profit: score };
   }
 }
 
-function effectiveMaxBet(state, market) {
-  if (market && market.maxBet !== null && market.maxBet > 0) return market.maxBet;
-  return state.maxBet || DEFAULT_MAX_BET;
+function effectiveMaxRiskPoints(state, market) {
+  if (market && market.maxRiskPoints !== null && market.maxRiskPoints > 0) return market.maxRiskPoints;
+  return state.maxRiskPoints || DEFAULT_MAX_RISK_POINTS;
 }
 
-function validateBetAmount(rawAmount, maxBet) {
-  const amount = Number(rawAmount);
-  if (isNaN(amount) || amount <= 0) return { ok: false, reason: '請輸入有效的活動點數' };
-  if (!Number.isInteger(amount)) return { ok: false, reason: '活動點數必須為整數' };
-  if (amount > maxBet) return { ok: false, reason: `單注活動點數不能超過 ${fmt(maxBet)} Pts` };
+function validateRiskPoints(rawPoints, maxRiskPoints) {
+  const points = Number(rawPoints);
+  if (isNaN(points) || points <= 0) return { ok: false, reason: '請輸入有效的風險分數' };
+  if (!Number.isInteger(points)) return { ok: false, reason: '風險分數必須為整數' };
+  if (points > maxRiskPoints) return { ok: false, reason: `單次風險分數不能超過 ${fmt(maxRiskPoints)} Pts` };
   return { ok: true };
 }
 
@@ -521,17 +522,16 @@ function getRecentActivity(state, limit = 10) {
     return {
       id: b.id,
       name: b.name || '神秘玩家',
-      marketTitle: market ? market.title : '盤口',
+      marketTitle: market ? market.title : '預測題目',
       optionLabel: opt ? opt.label : '選項',
-      amount: b.amount,
-      odds: betOdds(b),
+      riskPoints: riskPointsOf(b),
       ts: b.ts || Date.now()
     };
   });
 }
 
 /* =========================================
- * 10. 報表與結算單產出 (Reports & Bill)
+ * 10. 參與者積分報表 (Participant Score Reports)
  * ========================================= */
 
 function reportByBettor(state, pools) {
@@ -544,57 +544,63 @@ function reportByBettor(state, pools) {
     const displayName = bet.name || bet.bettorId || '神秘玩家';
     const key = identity;
     if (!map[key]) {
-      map[key] = { identity, name: displayName, totalStaked: 0, staked: 0, winCount: 0, loseCount: 0, pendingCount: 0, profit: 0, bankerNet: 0, bets: 0 };
+      map[key] = { identity, name: displayName, totalRisk: 0, winCount: 0, loseCount: 0, pendingCount: 0, score: 0, bets: 0 };
     }
     
-    map[key].totalStaked += bet.amount;
-    map[key].staked += bet.amount;
+    map[key].totalRisk += riskPointsOf(bet);
     map[key].bets++;
     
     const outcome = betOutcome(state, pools, bet);
     if (outcome.status === 'win') {
       map[key].winCount++;
-      map[key].profit += outcome.profit;
+      map[key].score += outcome.score;
     } else if (outcome.status === 'lose') {
       map[key].loseCount++;
-      map[key].profit += outcome.profit;
+      map[key].score += outcome.score;
     } else {
       map[key].pendingCount++;
     }
-    map[key].bankerNet = -map[key].profit;
   }
   
-  return Object.values(map).sort((a, b) => b.profit - a.profit);
+  return Object.values(map).sort((a, b) => b.score - a.score);
 }
 
-function bankerExposure(state, pools) {
-  let activeWorst = 0;
-  let settledNet = 0;
-  let staked = 0;
-  let totalRakeEarned = 0;
+function activityScoreSummary(state, pools) {
+  let settledNetScore = 0;
+  let totalRisk = 0;
+  let pendingRisk = 0;
+  let settledPositive = 0;
+  let settledNegative = 0;
   
   for (const m of state.markets) {
     const mTotal = marketTotal(pools, m);
-    staked += mTotal;
+    totalRisk += mTotal;
     if (m.settled) {
       const info = settleInfo(state, pools, m);
       if (info) {
-        settledNet += info.bankerNet;
-        totalRakeEarned += info.rakeEarned;
+        settledNetScore += info.netScore;
+        settledPositive += info.positivePoints;
+        settledNegative += info.negativePoints;
       }
     } else {
-      const worst = worstCase(state, pools, m);
-      if (worst < 0) activeWorst += worst;
+      pendingRisk += mTotal;
     }
   }
   
-  return { activeWorst, worstOpen: activeWorst, settledNet, staked, totalVolume: staked, totalRakeEarned };
+  return {
+    settledNetScore: roundPoints(settledNetScore),
+    totalRisk: roundPoints(totalRisk),
+    pendingRisk: roundPoints(pendingRisk),
+    settledPositive: roundPoints(settledPositive),
+    settledNegative: roundPoints(settledNegative)
+  };
 }
 
 function roomSettlement(state, pools) {
-  let hostNet = 0;
-  let hostRake = 0;
-  let totalPool = 0;
+  let participantNetScore = 0;
+  let totalPositive = 0;
+  let totalNegative = 0;
+  const totalRisk = roundPoints((state.bets || []).reduce((sum, prediction) => sum + riskPointsOf(prediction), 0));
 
   for (const m of state.markets) {
     if (!m.settled) continue;
@@ -602,24 +608,25 @@ function roomSettlement(state, pools) {
     const info = settleInfo(state, pools, m);
     if (!info) continue;
     
-    hostNet += info.bankerNet;
-    hostRake += info.rakeEarned;
-    totalPool += info.total;
+    participantNetScore += info.netScore;
+    totalPositive += info.positivePoints;
+    totalNegative += info.negativePoints;
   }
 
   const players = reportByBettor(state, pools).map(b => ({
       identity: b.identity,
       name: b.name,
-      staked: b.totalStaked,
-      profit: b.profit,
+      totalRisk: b.totalRisk,
+      score: b.score,
       bets: b.bets
     }));
 
   return {
-    players: players.sort((a, b) => b.profit - a.profit),
-    hostRake,
-    hostNet,
-    totalPool
+    players: players.sort((a, b) => b.score - a.score),
+    participantNetScore: roundPoints(participantNetScore),
+    totalPositive: roundPoints(totalPositive),
+    totalNegative: roundPoints(totalNegative),
+    totalRisk
   };
 }
 
@@ -629,30 +636,30 @@ function generateFormattedBill(state, pools) {
   const nowStr = new Date().toLocaleString('zh-TW');
   
   let bill = `┌────────────────────────────────────────┐\n`;
-  bill += `│   👑 BetPanel 包廂專屬結算帳單 👑      │\n`;
+  bill += `│   ✨ BetPanel 活動積分報告 ✨          │\n`;
   bill += `├────────────────────────────────────────┤\n`;
-  bill += `  包廂名稱：${state.roomTitle || 'VIP包廂'}\n`;
-  bill += `  莊家：${state.hostName || '莊家'}\n`;
-  bill += `  結算時間：${nowStr}\n`;
-  bill += `  總活動點數：${fmt(res.totalPool)} Pts\n`;
+  bill += `  活動名稱：${state.roomTitle || '現場互動活動'}\n`;
+  bill += `  主持人：${state.hostName || '活動主持人'}\n`;
+  bill += `  報告時間：${nowStr}\n`;
+  bill += `  累計風險分數：${fmt(res.totalRisk)} Pts\n`;
   bill += `├────────────────────────────────────────┤\n`;
-  bill += `  【莊家收益拆算】\n`;
-  const hostSign = res.hostNet >= 0 ? '+' : '';
-  bill += `  💰 主持人點數抽成(Rake)：+${fmt(res.hostRake)} Pts\n`;
-  bill += `  📊 主持人點數淨結果　　：${hostSign}${fmt(res.hostNet)} Pts\n`;
+  bill += `  【活動積分彙總】\n`;
+  bill += `  🟢 參與者正分：+${fmt(res.totalPositive)} Pts\n`;
+  bill += `  🔴 參與者負分：-${fmt(res.totalNegative)} Pts\n`;
+  bill += `  📊 全體淨積分：${res.participantNetScore >= 0 ? '+' : ''}${fmt(res.participantNetScore)} Pts\n`;
   bill += `├────────────────────────────────────────┤\n`;
-  bill += `  【客人帳單明細 (贏+/輸-)】\n`;
+  bill += `  【參與者積分明細 (+/−)】\n`;
   
   if (res.players.length === 0) {
-    bill += `  (尚無已結算的客人投注)\n`;
+    bill += `  (尚無已公布結果的參與紀錄)\n`;
   } else {
     res.players.forEach(p => {
-      const sign = p.profit > 0 ? '👑 贏 +' : (p.profit < 0 ? '💔 輸 -' : '🤝 平  ');
-      bill += `  • ${p.name.padEnd(10, ' ')} : ${sign}${fmt(Math.abs(p.profit))} Pts\n`;
+      const sign = p.score > 0 ? '🟢 +' : (p.score < 0 ? '🔴 -' : '⚪  ');
+      bill += `  • ${p.name.padEnd(10, ' ')} : ${sign}${fmt(Math.abs(p.score))} Pts\n`;
     });
   }
   bill += `└────────────────────────────────────────┘\n`;
-  bill += ` 💡 本帳單只記錄活動點數；平台不提供換算、收款、付款或兌現。`;
+  bill += ` 💡 積分不可購買、轉讓或兌換；本報告不建立任何應收、應付或主持人收益。`;
   return bill;
 }
 
@@ -688,16 +695,12 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     firebaseConfig,
     DB_PATH,
-    DEFAULT_ODDS,
-    DEFAULT_PRIOR_K,
-    DEFAULT_MAX_BET,
-    MAX_AUTO_ODDS,
-    MIN_AUTO_ODDS,
+    LEGACY_DEFAULT_ODDS,
+    DEFAULT_MAX_RISK_POINTS,
     QUICK_AMOUNTS,
-    DEFAULT_RAKE,
     SESSION_PRICE_TWD,
     SESSION_DURATION_MS,
-    RAKE_OPTIONS,
+    SCORE_MODE,
     CATEGORIES,
     NIGHTLIFE_PRESETS,
     SoundEngine,
@@ -716,24 +719,27 @@ if (typeof module !== 'undefined' && module.exports) {
     buildPools,
     poolOf,
     marketTotal,
-    bookOverround,
-    autoOdds,
-    liveOdds,
+    isSignedScoreMarket,
+    marketOptionCount,
+    riskPointsOf,
+    scoreMultiplierForPrediction,
+    correctScoreForPrediction,
+    scorePreview,
     buildDuelMarket,
     buildCustomMarket,
     betOdds,
     payoutForBet,
-    bankerNetIfWins,
-    worstCase,
+    participantNetIfResult,
+    resultScenario,
     settleInfo,
     betOutcome,
-    effectiveMaxBet,
-    validateBetAmount,
+    effectiveMaxRiskPoints,
+    validateRiskPoints,
     sameNickname,
     betBelongsTo,
     getRecentActivity,
     reportByBettor,
-    bankerExposure,
+    activityScoreSummary,
     roomSettlement,
     generateFormattedBill,
     generateQRCodeSVG,

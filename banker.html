@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>BetPanel · 莊家控制台 VIP</title>
+  <title>BetPanel · 主持人控制台</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
   
   <!-- Core Engine -->
-  <script src="app.js?v=single-session1"></script>
+  <script src="app.js?v=signed-score1"></script>
 </head>
 <body class="banker-mode">
 
@@ -29,12 +29,12 @@
         <div class="eyebrow">
           <span class="eyebrow-badge">單場服務版</span> BETPANEL
         </div>
-        <h1>莊家<span class="accent-b">後台中心</span></h1>
+        <h1>主持人<span class="accent-b">控制台</span></h1>
       </div>
       
       <div class="header-actions">
         <button class="btn-icon" id="soundToggleBtn" title="切換音效" onclick="toggleAudioSound()">🔊</button>
-        <a class="btn btn-outline" id="playerLink" target="_blank">開啟玩家頁 ↗</a>
+        <a class="btn btn-outline" id="playerLink" target="_blank">開啟參與者頁 ↗</a>
       </div>
     </header>
 
@@ -52,41 +52,34 @@
       
       <!-- SINGLE SESSION SERVICE CARD -->
       <div class="card card-gold-glow form-card-centered mb-4">
-        <h3 style="color:var(--gold-bright); margin:0 0 8px;">🎟️ 單次包廂使用權</h3>
+        <h3 style="color:var(--gold-bright); margin:0 0 8px;">🎟️ 單次活動房間使用權</h3>
         <div class="font-mono text-gold" style="font-size:1.8rem; font-weight:800;">NT$200／6 小時</div>
-        <p class="text-dim" style="font-size:0.82rem; margin-top:8px;">一次購買只啟用一個包廂，不建立錢包、不儲值，也不販售玩家點數。</p>
+        <p class="text-dim" style="font-size:0.82rem; margin-top:8px;">一次購買只啟用一個活動房間，不建立錢包、不儲值，也不販售參與者積分。</p>
         <p style="font-size:0.8rem; margin-top:8px; color:var(--cyan-bright);">目前尚未串接付款；以下按鈕只會建立 6 小時測試場次，不代表已完成付款。</p>
       </div>
 
       <!-- CREATE ROOM CARD -->
       <div class="card card-cyan-glow form-card-centered">
-        <h2 style="font-size: 1.5rem; color: var(--cyan-bright); margin-bottom: 16px;">👑 建立 6 小時測試包廂</h2>
+        <h2 style="font-size: 1.5rem; color: var(--cyan-bright); margin-bottom: 16px;">✨ 建立 6 小時測試活動</h2>
         
         <div class="form-group">
-          <label>包廂顯示名稱</label>
-          <input type="text" id="roomTitle" placeholder="例如：錢櫃包廂 #808 或 BAR 88 特調賭盤" value="VIP 尊榮投注包廂">
+          <label>活動顯示名稱</label>
+          <input type="text" id="roomTitle" placeholder="例如：週末派對或公司同樂會" value="現場互動活動">
         </div>
 
         <div class="form-group">
-          <label>莊家暱稱</label>
-          <input type="text" id="hostName" placeholder="例如：阿翔莊家">
-        </div>
-
-        <!-- CUSTOM RAKE SELECTOR -->
-        <div class="form-group">
-          <label>設定這場莊家抽水率 (Rake): <span id="rakeDisplay" class="text-cyan" style="font-weight: 800; font-size: 1.1rem;">5%</span></label>
-          <div class="chip-group mb-2" id="rakeOptionsContainer"></div>
-          <input type="range" id="rakeRange" min="0" max="15" value="5" step="1" style="width: 100%; accent-color: var(--cyan);">
-          <p class="text-dim" style="font-size: 0.78rem; margin-top: 4px;">開盤固定賠率，結算時從中獎淨利計算抽水，並獨立統計莊家收益</p>
+          <label>主持人暱稱</label>
+          <input type="text" id="hostName" placeholder="例如：阿翔主持人">
         </div>
 
         <div class="form-group">
-          <label>單筆最高活動點數 (Pts)</label>
-          <input type="number" id="maxBet" value="10000" min="100" step="500">
+          <label>單次最高風險分數 (Pts)</label>
+          <input type="number" id="maxRiskPoints" value="10000" min="100" step="500">
+          <p class="text-dim" style="font-size:0.78rem; margin-top:4px;">參與者不需要預先持有積分；每次可自行輸入風險分數。答對依選項數加分，答錯扣除相同風險分數。</p>
         </div>
 
         <button class="btn btn-cyan w-100 py-3 mt-3" id="btnCreateRoom" style="font-size: 1.05rem;">
-          ⚡ 測試啟用 6 小時包廂
+          ⚡ 測試啟用 6 小時活動
         </button>
       </div>
     </div>
@@ -96,7 +89,7 @@
       
       <!-- ROOM INFO & QR CODE CARD -->
       <div class="card card-gold-glow text-center form-card-centered mb-4">
-        <div class="text-dim" style="font-size:0.82rem; text-transform:uppercase; letter-spacing:2px;">包廂專屬代碼</div>
+        <div class="text-dim" style="font-size:0.82rem; text-transform:uppercase; letter-spacing:2px;">活動專屬代碼</div>
         <div id="roomCodeDisplay" class="font-mono text-gold" style="font-size:3rem; font-weight:800; letter-spacing:6px; margin: 4px 0 14px 0;">XXXXXX</div>
         
         <div style="background:#fff; padding:10px; display:inline-block; border-radius:12px; box-shadow:0 0 20px rgba(255,255,255,0.15); margin-bottom:14px;">
@@ -104,34 +97,34 @@
         </div>
         
         <div class="text-dim mb-3" style="font-size:0.88rem;">
-          莊家: <span id="infoHostName" class="text-cyan" style="font-weight:bold;"></span> │ 
-          設定抽水率: <span id="infoRake" class="text-gold" style="font-weight:bold;"></span>% │
+          主持人: <span id="infoHostName" class="text-cyan" style="font-weight:bold;"></span> │
+          計分方式: <span class="text-gold" style="font-weight:bold;">選項數正負淨分</span> │
           場次狀態: <span id="sessionTimeDisplay" class="text-cyan" style="font-weight:bold;">讀取中</span>
         </div>
         
         <div class="d-flex gap-2" style="justify-content:center; flex-wrap:wrap;">
-          <button class="btn btn-gold" id="btnCopyLink">📋 複製玩家連結</button>
+          <button class="btn btn-gold" id="btnCopyLink">📋 複製參與者連結</button>
           <button class="btn btn-danger" id="btnCloseRoom">🚪 關閉後台</button>
         </div>
       </div>
 
-      <!-- REAL-TIME RISK RADAR STRIP -->
+      <!-- REAL-TIME SCORE SUMMARY STRIP -->
       <div class="summary-strip">
         <div class="stat-card blue">
-          <div class="lbl">總活動點數</div>
+          <div class="lbl">累計風險分數</div>
           <div id="statTotalPool" class="num">0 Pts</div>
         </div>
         <div class="stat-card blue">
-          <div class="lbl">主持人點數抽成</div>
-          <div id="statHostRake" class="num">+0 Pts</div>
+          <div class="lbl">已公布正分</div>
+          <div id="statPositiveScore" class="num pos">+0 Pts</div>
         </div>
         <div class="stat-card">
-          <div class="lbl">主持人已結算點數</div>
-          <div id="statHostNet" class="num pos">0 Pts</div>
+          <div class="lbl">已公布負分</div>
+          <div id="statNegativeScore" class="num neg">-0 Pts</div>
         </div>
         <div class="stat-card">
-          <div class="lbl">未結算最大風險</div>
-          <div id="statWorstRisk" class="num neg">0 Pts</div>
+          <div class="lbl">待公布風險分數</div>
+          <div id="statPendingRisk" class="num">0 Pts</div>
         </div>
       </div>
 
@@ -140,17 +133,17 @@
         <div class="card" style="background:rgba(255, 51, 102, 0.12); border:1px solid var(--red); padding:12px 18px; margin-bottom:18px;">
           <div class="d-flex justify-between align-center">
             <div class="d-flex align-center gap-2" style="color:var(--red-bright); font-weight:bold; font-size:0.9rem;">
-              <span>⚠️</span> 提醒：目前有未封盤的開放中盤口！
+              <span>⚠️</span> 提醒：目前有尚未截止的預測題目！
             </div>
-            <button class="btn btn-danger" id="btnLockAll" style="padding:5px 12px; font-size:0.8rem;">🔒 一鍵全部封盤</button>
+            <button class="btn btn-danger" id="btnLockAll" style="padding:5px 12px; font-size:0.8rem;">🔒 一鍵全部截止</button>
           </div>
         </div>
       </div>
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab-btn active blue" data-target="tab-markets">🎯 盤口管理</button>
-        <button class="tab-btn blue" data-target="tab-reports">📊 結算帳單與明細</button>
+        <button class="tab-btn active blue" data-target="tab-markets">🎯 預測題目</button>
+        <button class="tab-btn blue" data-target="tab-reports">📊 積分報告與明細</button>
         <button class="tab-btn blue" data-target="tab-settings">⚙️ 設定維護</button>
       </div>
 
@@ -159,12 +152,12 @@
         
         <!-- QUICK PRESETS & CREATE MARKET FORM -->
         <div class="card mb-4">
-          <h3 class="mb-3" style="color:var(--cyan-bright);">⚡ 快速開盤 (夜店包廂熱門預設)</h3>
+          <h3 class="mb-3" style="color:var(--cyan-bright);">⚡ 快速建立 (派對熱門預設)</h3>
           
-          <div class="preset-grid mb-3" id="presetGrid"><div class="text-dim">載入預設盤口中...</div></div>
+          <div class="preset-grid mb-3" id="presetGrid"><div class="text-dim">載入預測範本中...</div></div>
           <div class="card mb-3" style="background:rgba(0,0,0,.18); border-color:rgba(0,240,255,.35);">
             <h4 style="color:var(--cyan-bright); margin-bottom:8px;">📣 即時戰況推播</h4>
-            <p class="text-dim" style="font-size:.82rem; margin-bottom:10px;">輸入目前戰況，玩家會在玩家頁即時看到。</p>
+            <p class="text-dim" style="font-size:.82rem; margin-bottom:10px;">輸入目前戰況，參與者會即時看到。</p>
             <div class="d-flex gap-2">
               <select id="situationType" class="input-control" style="max-width:130px;"><option value="live">戰況</option><option value="result">結果提示</option><option value="notice">公告</option></select>
               <input id="situationInput" class="input-control" maxlength="200" placeholder="例如：A 選手目前連勝 3 局！">
@@ -175,16 +168,16 @@
           
           <hr style="border:none; border-top:1px solid var(--border); margin: 18px 0;">
 
-          <h4 class="mb-3" style="color:#fff;">自訂建立盤口</h4>
+          <h4 class="mb-3" style="color:#fff;">自訂預測題目</h4>
           <div id="createMarketForm">
             <div class="form-group">
-              <label>盤口標題</label>
+              <label>題目標題</label>
               <input type="text" id="marketTitle" placeholder="例如：張總 vs 李總 (吹牛對決)">
             </div>
             
             <div class="form-group">
-              <label>盤口說明 (可選)</label>
-              <input type="text" id="marketDesc" placeholder="例如：輸者罰三杯特調酒">
+              <label>題目說明 (可選)</label>
+              <input type="text" id="marketDesc" placeholder="例如：以本局主持人公布的現場結果為準">
             </div>
             
             <div class="form-group">
@@ -196,13 +189,13 @@
             </div>
 
             <button class="btn btn-gold w-100 py-3" id="btnCreateMarket" style="font-size: 1.05rem;">
-              🚀 確認發布開盤
+              🚀 發布預測題目
             </button>
           </div>
         </div>
 
         <!-- Live Market List -->
-        <h3 class="mb-3" style="color:#fff;">📌 目前盤口列表</h3>
+        <h3 class="mb-3" style="color:#fff;">📌 目前預測題目</h3>
         <div id="marketListContainer">
           <div class="card text-center text-dim">載入中...</div>
         </div>
@@ -214,11 +207,11 @@
         
         <!-- VIP BILL GENERATOR CARD -->
         <div class="card card-gold-glow mb-4">
-          <h3 class="mb-2" style="color:var(--gold-bright);">📜 一鍵包廂結算帳單</h3>
-          <p class="text-dim mb-3" style="font-size:0.85rem;">清晰列出主持人點數抽成、結算結果與每位玩家的活動點數損益；不代表任何法定貨幣。</p>
+          <h3 class="mb-2" style="color:var(--gold-bright);">📜 一鍵活動積分報告</h3>
+          <p class="text-dim mb-3" style="font-size:0.85rem;">列出參與者正分、負分、全體淨積分與逐人結果；不建立主持人收益或任何應收應付。</p>
           
           <button class="btn btn-gold w-100 py-3 mb-3" id="btnGenerateBill" style="font-size: 1.05rem;">
-            🧾 一鍵生成全包廂結算明細
+            🧾 生成全場積分明細
           </button>
           
           <div id="billContainer" style="display:none;">
@@ -228,21 +221,21 @@
             </div>
             
             <textarea id="billOutput" style="width:100%; height:200px; background:#080910; color:var(--gold-bright); border:1px solid var(--gold); border-radius:8px; padding:12px; font-family:'JetBrains Mono', monospace; font-size:0.88rem; line-height:1.5;" readonly></textarea>
-            <button class="btn btn-cyan w-100 mt-2" id="btnCopyBill">📋 一鍵複製文字帳單 (貼至 LINE / 微信)</button>
+            <button class="btn btn-cyan w-100 mt-2" id="btnCopyBill">📋 複製文字積分報告</button>
           </div>
         </div>
 
         <!-- PLAYER RANKINGS TABLE -->
         <div class="card">
-          <h3 class="mb-3" style="color:#fff;">👥 客人損益明細表</h3>
+          <h3 class="mb-3" style="color:#fff;">👥 參與者積分明細表</h3>
           <div class="table-responsive">
             <table id="playerReportTable">
               <thead>
                 <tr>
-                  <th>客人暱稱</th>
-                  <th class="text-right">注數</th>
-                  <th class="text-right">總投注點數</th>
-                  <th class="text-right">客人結算損益</th>
+                  <th>參與者暱稱</th>
+                  <th class="text-right">預測次數</th>
+                  <th class="text-right">累計風險分數</th>
+                  <th class="text-right">已公布淨積分</th>
                 </tr>
               </thead>
               <tbody id="playerReportBody">
@@ -257,24 +250,24 @@
       <div class="tab-content" id="tab-settings" style="display:none;">
         <div class="card" style="border-color: var(--red);">
           <h3 class="mb-2" style="color:var(--red-bright);">🚨 危險操作區</h3>
-          <p class="text-dim mb-3" style="font-size:0.85rem;">封存包廂會停止未結算盤口，但保留所有盤口、下注與審計紀錄。</p>
-          <button class="btn btn-danger w-100 py-3" id="btnResetRoom">📦 封存包廂並保留帳務紀錄</button>
+          <p class="text-dim mb-3" style="font-size:0.85rem;">封存活動會停止未公布題目，但保留所有題目、預測與審計紀錄。</p>
+          <button class="btn btn-danger w-100 py-3" id="btnResetRoom">📦 封存活動並保留積分紀錄</button>
         </div>
       </div>
       
     </div>
 
       <section class="card mb-4" style="border-color: var(--cyan);">
-        <h3 style="color:var(--cyan-bright); margin-bottom:10px;">📘 莊家操作手冊</h3>
+        <h3 style="color:var(--cyan-bright); margin-bottom:10px;">📘 主持人操作手冊</h3>
         <ol class="text-dim" style="margin:0; padding-left:22px; line-height:1.8; font-size:0.88rem;">
-          <li>建立包廂後，從「快速開盤」選模板，確認選項、固定賠率、抽水與最高下注額。</li>
-          <li>將玩家網址與包廂代碼提供給玩家；只有資料庫成功寫入的下注才算成立。</li>
-          <li>停止下注時按「封盤」；確認結果後再按「結算」，結算後不可撤回。</li>
-          <li>發生中止或結果不明時不要硬結算，保留紀錄並依爭議流程處理。</li>
-          <li>結束營運請用「封存包廂」，不要刪除資料或直接修改 Firebase。</li>
+          <li>建立活動後，從快速範本選擇題目；選項數會決定答對的淨加分規則。</li>
+          <li>將參與者網址與活動代碼提供給來賓；只有資料庫成功寫入的預測才會列入積分。</li>
+          <li>停止提交時按「截止」；確認結果後再按「公布結果」，公布後不可撤回。</li>
+          <li>發生中止或結果不明時先保留題目與紀錄，不要任意公布結果。</li>
+          <li>活動結束請使用「封存活動」，不要刪除資料或直接修改 Firebase。</li>
         </ol>
       </section>    <footer style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 40px; padding: 20px 0;">
-      BetPanel VIP 莊家系統 · 資料毫秒同步 · 專為酒吧/KTV包廂設計
+      BetPanel 現場互動預測積分平台 · 資料即時同步 · 積分不可購買、轉讓或兌換
     </footer>
 
   </div>
@@ -350,16 +343,11 @@
       return {
         action,
         actorId: authUser?.uid || hostProfile?.hostId || 'host-client',
-        actorName: hostProfile?.hostName || state?.hostName || '莊家',
+        actorName: hostProfile?.hostName || state?.hostName || '主持人',
         actorUid: authUser?.uid || '',
         ts: firebase.database.ServerValue.TIMESTAMP,
         ...details
       };
-    }
-    function renderRakeOptions() {
-      const c = document.getElementById('rakeOptionsContainer');
-      if (!c) return;
-      c.innerHTML = RAKE_OPTIONS.map(r => `<button type="button" class="chip-btn ${r === 0.05 ? 'active' : ''}" onclick="setRakeValue(${r * 100})">${r * 100}%</button>`).join('');
     }
     function generateCode(length=6) {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -368,15 +356,8 @@
       return r;
     }
 
-    function setRakeValue(val) {
-      SoundEngine.playChip();
-      document.getElementById('rakeRange').value = val;
-      document.getElementById('rakeDisplay').textContent = val + '%';
-    }
-
     async function initFirebase() {
       updateSoundButtonUI();
-      renderRakeOptions();
       renderPresetCards();
       if (!firebase.apps.length) {
         firebase.initializeApp(cfg);
@@ -463,7 +444,7 @@
       }
       const remaining = state.expiresAt - serverNow();
       if (remaining <= 0) {
-        el.textContent = '已到期・僅可封盤／結算／封存';
+        el.textContent = '已到期・僅可截止／公布結果／封存';
         el.style.color = 'var(--red-bright)';
         return;
       }
@@ -474,19 +455,18 @@
       el.style.color = 'var(--cyan-bright)';
     }
 
-    document.getElementById('rakeRange').addEventListener('input', e => {
-      document.getElementById('rakeDisplay').textContent = e.target.value + '%';
-    });
-
     document.getElementById('btnCreateRoom').addEventListener('click', async () => {
-      const rTitle = document.getElementById('roomTitle').value.trim() || 'VIP 尊榮投注包廂';
+      const rTitle = document.getElementById('roomTitle').value.trim() || '現場互動活動';
       const hName = document.getElementById('hostName').value.trim();
-      const rake = parseInt(document.getElementById('rakeRange').value);
-      const mBet = parseInt(document.getElementById('maxBet').value);
+      const maxRiskPoints = parseInt(document.getElementById('maxRiskPoints').value);
       
       if(!hName) {
         SoundEngine.playError();
-        return showToast('請輸入莊家暱稱', 'error');
+        return showToast('請輸入主持人暱稱', 'error');
+      }
+      if (!Number.isInteger(maxRiskPoints) || maxRiskPoints <= 0) {
+        SoundEngine.playError();
+        return showToast('請輸入有效的單次最高風險分數', 'error');
       }
       
       const code = generateCode(6);
@@ -498,10 +478,8 @@
         hostName: hName,
         hostId: hostProfile.hostId,
         hostUid: authUser.uid,
-        rake: rake,
-        rakePercent: rake / 100,
-        autoPrice: false,
-        maxBet: mBet,
+        scoringMode: SCORE_MODE,
+        maxRiskPoints,
         pin: pin,
         status: 'active',
         accessMode: 'demo',
@@ -518,23 +496,23 @@
         localStorage.setItem(ROOM_KEY, code);
         localStorage.setItem(PIN_KEY, pin);
         SoundEngine.playWin();
-        showToast('6 小時測試包廂建立成功！此操作不代表已付款。', 'success');
+        showToast('6 小時測試活動建立成功！此操作不代表已付款。', 'success');
         enterRoom(code);
       } catch(e) {
         SoundEngine.playError();
-        showToast('建立包廂失敗：' + (e && e.message ? e.message : '請開啟瀏覽器主控台查看'), 'error');
+        showToast('建立活動失敗：' + (e && e.message ? e.message : '請開啟瀏覽器主控台查看'), 'error');
       }
     });
 
     document.getElementById('btnCopyLink').addEventListener('click', () => {
       SoundEngine.playChip();
       const pUrl = window.location.href.replace('banker.html', 'index.html') + '?room=' + roomCode;
-      navigator.clipboard.writeText(pUrl).then(() => showToast('已複製玩家鏈結到剪貼簿！', 'success'));
+      navigator.clipboard.writeText(pUrl).then(() => showToast('已複製參與者連結到剪貼簿！', 'success'));
     });
 
     document.getElementById('btnCloseRoom').addEventListener('click', () => {
       SoundEngine.playChip();
-      if(confirm('確定要關閉此包廂後台？(僅登出後台，不刪除歷史資料)')) {
+      if(confirm('確定要關閉此活動後台？（僅登出後台，不刪除歷史資料）')) {
         localStorage.removeItem(ROOM_KEY);
         localStorage.removeItem(PIN_KEY);
         location.reload();
@@ -556,8 +534,7 @@
         state = normalize(rawState);
         pools = buildPools(state);
         
-        document.getElementById('infoHostName').textContent = esc(state.hostName || '莊家');
-        document.getElementById('infoRake').textContent = (state.rakePercent * 100).toFixed(0);
+        document.getElementById('infoHostName').textContent = esc(state.hostName || '主持人');
         hostProfile.hostName = state.hostName || hostProfile.hostName;
         updateSessionTimeUI();
         
@@ -579,7 +556,7 @@
     }
 
     document.getElementById('btnLockAll').addEventListener('click', async () => {
-      if (state?.status === 'archived') return showToast('包廂已封存，不能再操作盤口', 'error');
+      if (state?.status === 'archived') return showToast('活動已封存，不能再操作題目', 'error');
       SoundEngine.playLock();
       const updates = {};
       if(state && state.markets) {
@@ -594,10 +571,10 @@
       if(Object.keys(updates).length > 0) {
         try {
           await roomRef.update(updates);
-          showToast('已成功全部封盤！', 'success');
+          showToast('已成功截止所有預測！', 'success');
         } catch (error) {
           console.error(error);
-          showToast('全部封盤失敗：' + error.message, 'error');
+          showToast('全部截止失敗：' + error.message, 'error');
         }
       }
     });
@@ -630,8 +607,7 @@
       
       preset.options.forEach((opt) => {
         const label = typeof opt === 'string' ? opt : opt.label;
-        const odds = typeof opt === 'object' && opt.odds ? opt.odds : '';
-        addOptionInput(label, odds);
+        addOptionInput(label);
       });
       showToast(`已載入預設模板：${preset.title}`, 'info');
     }
@@ -639,7 +615,7 @@
     const PRESET_GROUPS = [
       {key:'dice', title:'🎲 骰子類', hint:'妞妞、骰寶、21 點、十八啦', open:true},
       {key:'punch', title:'✊ 划拳類', hint:'5／10／15 划拳、新加坡拳、海帶拳', open:false},
-      {key:'challenge', title:'🥤 喝酒挑戰', hint:'速度、限時飲用量、KTV 評分；可改無酒精版本', open:false},
+      {key:'challenge', title:'🥤 派對挑戰', hint:'速度、限時完成量、KTV 評分；建議使用無酒精版本', open:false},
       {key:'king', title:'👑 國王大冒險', hint:'輕度／中度／高強度，禁止危險或強迫行為', open:false}
     ];
 
@@ -663,12 +639,12 @@
       const input = document.getElementById('situationInput');
       const message = input.value.trim();
       if (!roomRef || !message) return showToast('請輸入戰況內容', 'error');
-      if (state?.status === 'archived') return showToast('包廂已封存，不能再發布戰況', 'error');
+      if (state?.status === 'archived') return showToast('活動已封存，不能再發布戰況', 'error');
       if (isSessionExpired(state, serverNow())) return showToast('6 小時場次已到期，不能再發布戰況', 'error');
       try {
-        await roomRef.child('updates').push({ message, type: document.getElementById('situationType').value, actorUid: authUser.uid, actorName: hostProfile?.hostName || '莊家', ts: firebase.database.ServerValue.TIMESTAMP });
+        await roomRef.child('updates').push({ message, type: document.getElementById('situationType').value, actorUid: authUser.uid, actorName: hostProfile?.hostName || '主持人', ts: firebase.database.ServerValue.TIMESTAMP });
         input.value = '';
-        showToast('戰況已推播給玩家', 'success');
+        showToast('戰況已推播給參與者', 'success');
       } catch (e) { console.error(e); showToast('戰況推播失敗：' + e.message, 'error'); }
     }
     function renderCreateForm() {
@@ -678,13 +654,12 @@
       addOptionInput('選手 B', '');
     }
 
-    function addOptionInput(labelVal='', oddsVal='') {
+    function addOptionInput(labelVal='') {
       const c = document.getElementById('optionsContainer');
       const div = document.createElement('div');
       div.className = 'd-flex gap-2 mb-2';
       
       let html = `<input type="text" class="opt-name input-control" placeholder="選項名稱" value="${esc(labelVal)}" style="flex:2;">`;
-      html += `<input type="number" class="opt-odds input-control" placeholder="賠率(選填)" step="0.05" value="${oddsVal}" style="flex:1;">`;
       html += `<button class="btn btn-danger btn-remove-opt" style="padding:0 12px;">✕</button>`;
       
       div.innerHTML = html;
@@ -694,34 +669,25 @@
 
     document.getElementById('btnAddOption').onclick = () => {
       SoundEngine.playChip();
-      addOptionInput('', '');
+      addOptionInput('');
     };
 
     document.getElementById('btnCreateMarket').addEventListener('click', () => {
-      if (state?.status === 'archived') return showToast('包廂已封存，不能再建立盤口', 'error');
-      if (isSessionExpired(state, serverNow())) return showToast('6 小時場次已到期，不能再建立盤口', 'error');
+      if (state?.status === 'archived') return showToast('活動已封存，不能再建立題目', 'error');
+      if (isSessionExpired(state, serverNow())) return showToast('6 小時場次已到期，不能再建立題目', 'error');
       const title = document.getElementById('marketTitle').value.trim();
       const desc = document.getElementById('marketDesc').value.trim();
-      const priorK = 5000;
       
       if(!title) {
         SoundEngine.playError();
-        return showToast('請輸入盤口標題', 'error');
+        return showToast('請輸入題目標題', 'error');
       }
       
       const nameInputs = Array.from(document.querySelectorAll('.opt-name'));
-      const oddsInputs = Array.from(document.querySelectorAll('.opt-odds'));
-      
       const optionsArr = [];
-      nameInputs.forEach((el, i) => {
+      nameInputs.forEach(el => {
         const name = el.value.trim();
-        if(name) {
-          const oVal = parseFloat(oddsInputs[i].value);
-          optionsArr.push({
-            label: name,
-            odds: (!isNaN(oVal) && oVal > 1) ? oVal : null
-          });
-        }
+        if(name) optionsArr.push({ label: name });
       });
       
       if(optionsArr.length < 2) {
@@ -731,36 +697,33 @@
       
       let optsObj = {};
       optionsArr.forEach((opt, i) => {
-        optsObj['opt_' + i] = { label: opt.label, order: i, odds: opt.odds || 2.0 };
+        optsObj['opt_' + i] = { label: opt.label, order: i };
       });
       
       const marketId = 'm_' + Date.now();
-      const rake = (state.rakePercent * 100);
-      
       const market = {
         title: title,
         desc: desc,
         category: 'custom',
         options: optsObj,
-        rake: rake,
-        rakePercent: rake / 100,
-        autoPrice: false,
-        priorK: parseInt(priorK),
+        scoringMode: SCORE_MODE,
+        optionCount: optionsArr.length,
+        maxRiskPoints: state.maxRiskPoints || DEFAULT_MAX_RISK_POINTS,
         locked: false,
         settled: false,
-        createdAt: Date.now()
+        createdAt: serverNow()
       };
       
       roomRef.child('markets').child(marketId).set(market).then(() => {
         SoundEngine.playWin();
-        showToast('開盤成功！', 'success');
+        showToast('預測題目發布成功！', 'success');
         document.getElementById('marketTitle').value = '';
         document.getElementById('marketDesc').value = '';
         renderCreateForm();
       }).catch(error => {
         console.error(error);
         SoundEngine.playError();
-        showToast('開盤失敗：' + error.message, 'error');
+        showToast('發布題目失敗：' + error.message, 'error');
       });
     });
 
@@ -769,7 +732,7 @@
       container.innerHTML = '';
       
       if(!state || !state.markets || state.markets.length === 0) {
-        container.innerHTML = '<div class="card text-center text-dim">尚無任何開立的盤口</div>';
+        container.innerHTML = '<div class="card text-center text-dim">尚無預測題目</div>';
         return;
       }
       
@@ -785,10 +748,10 @@
         card.id = `market-admin-${m.id}`;
         
         let statusBadge = isArchived ? '<span class="badge badge-locked">📦 已封存</span>' :
-                          (m.settled ? '<span class="badge badge-settled">🏁 已派彩結算</span>' :
-                          (m.locked ? '<span class="badge badge-locked">🔒 已封盤</span>' : 
+                          (m.settled ? '<span class="badge badge-settled">🏁 已公布結果</span>' :
+                          (m.locked ? '<span class="badge badge-locked">🔒 已截止</span>' :
                           (sessionExpired ? '<span class="badge badge-locked">⏱ 場次已到期</span>' :
-                                      '<span class="badge badge-open">🟢 開放下注中</span>')));
+                                      '<span class="badge badge-open">🟢 開放預測中</span>')));
                                       
         let html = `
           <div class="d-flex justify-between align-center mb-2">
@@ -799,15 +762,14 @@
             <div>${statusBadge}</div>
           </div>
           <div class="text-dim mb-3" style="font-size:0.82rem;">
-            總活動點數: <strong class="text-gold">${fmt(totalP)} Pts</strong> │ 主持人點數抽成: ${m.rake || (state.rakePercent * 100)}%
+            累計風險分數: <strong class="text-gold">${fmt(totalP)} Pts</strong> │ ${isSignedScoreMarket(m) ? `${marketOptionCount(m)} 選一：答對 +${marketOptionCount(m)-1}R／答錯 −R` : '舊版題目：依既有鎖定資料完成結果計算'}
           </div>
         `;
         
         html += `<div style="background:rgba(0,0,0,0.4); border-radius:8px; padding:12px; margin-bottom:14px;">`;
         m.options.forEach(opt => {
-          let cOdds = m.settled ? '-' : liveOdds(pools, m, opt.id).value.toFixed(2);
           let pAmt = poolOf(pools, m.id, opt.id);
-          let net = bankerNetIfWins(state, pools, m, opt.id);
+          let net = participantNetIfResult(state, m, opt.id);
           let netColor = net >= 0 ? 'var(--green)' : 'var(--red-bright)';
           let netSign = net >= 0 ? '+' : '';
           
@@ -819,9 +781,8 @@
               <div style="flex:2; ${isWinner ? 'color:var(--gold-bright); font-weight:bold;' : 'color:#fff;'}">
                 ${isWinner ? '👑 ' : ''}${esc(opt.label)}
               </div>
-              <div style="flex:1; text-align:center;" class="font-mono text-cyan">x${cOdds}</div>
-              <div style="flex:1; text-align:right; font-size:0.85rem;" class="text-dim">${fmt(pAmt)} Pts</div>
-              <div style="flex:1; text-align:right; font-size:0.85rem; color:${netColor}; font-weight:bold;" class="font-mono">${netSign}${fmt(net)} Pts</div>
+              <div style="flex:1; text-align:right; font-size:0.85rem;" class="text-dim">風險 ${fmt(pAmt)} Pts</div>
+              <div style="flex:1; text-align:right; font-size:0.85rem; color:${netColor}; font-weight:bold;" class="font-mono">若為結果：全體 ${netSign}${fmt(net)} Pts</div>
             </div>
           `;
         });
@@ -833,16 +794,16 @@
           html += `<span class="badge badge-locked" style="flex:1; text-align:center; padding:10px;">📦 已封存（不可再操作）</span>`;
         } else if(!m.settled) {
           if(!m.locked) {
-            html += `<button class="btn btn-danger m-lock-btn" data-id="${m.id}" style="flex:1;">🔒 封盤</button>`;
+            html += `<button class="btn btn-danger m-lock-btn" data-id="${m.id}" style="flex:1;">🔒 截止預測</button>`;
           } else {
-            if(!sessionExpired) html += `<button class="btn btn-outline m-unlock-btn" data-id="${m.id}" style="flex:1;">🔓 解鎖</button>`;
-            html += `<button class="btn btn-gold m-settle-btn" data-id="${m.id}" style="flex:1;">🏆 結算派彩</button>`;
+            if(!sessionExpired) html += `<button class="btn btn-outline m-unlock-btn" data-id="${m.id}" style="flex:1;">🔓 重新開放</button>`;
+            html += `<button class="btn btn-gold m-settle-btn" data-id="${m.id}" style="flex:1;">🏆 公布結果</button>`;
           }
         } else {
-          html += `<span class="badge badge-settled" style="flex:1; text-align:center; padding:10px;">🔒 已結算（不可撤銷）</span>`;
+          html += `<span class="badge badge-settled" style="flex:1; text-align:center; padding:10px;">🔒 結果已公布（不可撤銷）</span>`;
         }
         if(!isArchived && m.settled) {
-          html += `<button class="btn btn-danger m-del-btn" data-id="${m.id}" style="background:transparent; border:1px solid var(--red); color:var(--red-bright);">📦 封存盤口</button>`;
+          html += `<button class="btn btn-danger m-del-btn" data-id="${m.id}" style="background:transparent; border:1px solid var(--red); color:var(--red-bright);">📦 封存題目</button>`;
         }
         
         html += `</div>`;
@@ -850,11 +811,11 @@
         if(!isArchived && m.locked && !m.settled) {
           html += `
             <div id="settle-panel-${m.id}" style="display:none; margin-top:14px; padding:14px; background:#0c0e18; border:1px solid var(--gold); border-radius:8px;">
-              <h5 class="text-gold mb-2">選擇獲勝選項進行派彩：</h5>
+              <h5 class="text-gold mb-2">選擇本局實際結果：</h5>
               <select id="settle-sel-${m.id}" class="input-control mb-3">
-                ${m.options.map(o => `<option value="${o.id}">${esc(o.label)} (若獲勝主持人點數損益: ${fmt(bankerNetIfWins(state, pools, m, o.id))} Pts)</option>`).join('')}
+                ${m.options.map(o => `<option value="${o.id}">${esc(o.label)}（若為結果，全體淨積分 ${participantNetIfResult(state, m, o.id) >= 0 ? '+' : ''}${fmt(participantNetIfResult(state, m, o.id))} Pts）</option>`).join('')}
               </select>
-              <button class="btn btn-gold w-100 m-confirm-settle-btn" data-id="${m.id}">✅ 確認宣佈獲勝並即時派彩</button>
+              <button class="btn btn-gold w-100 m-confirm-settle-btn" data-id="${m.id}">✅ 確認公布結果並計分</button>
             </div>
           `;
         }
@@ -873,7 +834,7 @@
           });
         } catch (error) {
           console.error(error);
-          showToast('封盤失敗：' + error.message, 'error');
+          showToast('截止預測失敗：' + error.message, 'error');
         }
       });
       document.querySelectorAll('.m-unlock-btn').forEach(btn => btn.onclick = async e => {
@@ -886,7 +847,7 @@
           });
         } catch (error) {
           console.error(error);
-          showToast('解鎖失敗：' + error.message, 'error');
+          showToast('重新開放失敗：' + error.message, 'error');
         }
       });
       document.querySelectorAll('.m-settle-btn').forEach(btn => btn.onclick = e => {
@@ -898,7 +859,7 @@
       document.querySelectorAll('.m-confirm-settle-btn').forEach(btn => btn.onclick = async e => {
         const id = e.target.dataset.id;
         const winId = document.getElementById('settle-sel-' + id).value;
-        if(confirm('確定要宣佈此選項獲勝？結算後系統將依照鎖定賠率進行派彩。')) {
+        if(confirm('確定要將此選項公布為結果？系統會立即計算正負積分，公布後不可撤銷。')) {
           const market = state.markets.find(item => item.id === id);
           const winner = market?.options.find(option => option.id === winId);
           const auditKey = roomRef.child('auditLogs').push().key;
@@ -912,17 +873,17 @@
           try {
             await roomRef.update(updates);
             SoundEngine.playWin();
-            showToast('結算成功！', 'success');
+            showToast('結果已公布，積分計算完成！', 'success');
           } catch (error) {
             console.error(error);
             SoundEngine.playError();
-            showToast('結算失敗：' + error.message, 'error');
+            showToast('公布結果失敗：' + error.message, 'error');
           }
         }
       });
       document.querySelectorAll('.m-del-btn').forEach(btn => btn.onclick = async e => {
         const id = e.target.dataset.id;
-        if(confirm('盤口將被封存並停止操作，下注與結算紀錄不會刪除。確定繼續？')) {
+        if(confirm('題目將被封存並停止操作，預測與積分紀錄不會刪除。確定繼續？')) {
           const auditKey = roomRef.child('auditLogs').push().key;
           const updates = {};
           updates[`markets/${id}/locked`] = true;
@@ -932,25 +893,20 @@
           updates[`auditLogs/${auditKey}`] = buildAuditLog('market_archived', { marketId: id });
           try {
             await roomRef.update(updates);
-            showToast('盤口已封存，原始紀錄保留', 'success');
+            showToast('題目已封存，原始紀錄保留', 'success');
           } catch (error) {
             console.error(error);
-            showToast('封存盤口失敗：' + error.message, 'error');
+            showToast('封存題目失敗：' + error.message, 'error');
           }
         }
       });
     }
     function updateStats() {
-      const exp = bankerExposure(state, pools);
-      document.getElementById('statTotalPool').textContent = fmt(exp.staked) + ' Pts';
-      document.getElementById('statHostRake').textContent = '+' + fmt(exp.totalRakeEarned) + ' Pts';
-      
-      const hostNetEl = document.getElementById('statHostNet');
-      const sign = exp.settledNet >= 0 ? '+' : '';
-      hostNetEl.textContent = sign + fmt(exp.settledNet) + ' Pts';
-      hostNetEl.className = 'num ' + (exp.settledNet >= 0 ? 'pos' : 'neg');
-      
-      document.getElementById('statWorstRisk').textContent = fmt(Math.abs(exp.worstOpen)) + ' Pts';
+      const summary = activityScoreSummary(state, pools);
+      document.getElementById('statTotalPool').textContent = fmt(summary.totalRisk) + ' Pts';
+      document.getElementById('statPositiveScore').textContent = '+' + fmt(summary.settledPositive) + ' Pts';
+      document.getElementById('statNegativeScore').textContent = '-' + fmt(summary.settledNegative) + ' Pts';
+      document.getElementById('statPendingRisk').textContent = fmt(summary.pendingRisk) + ' Pts';
     }
 
     function renderReports() {
@@ -959,15 +915,15 @@
       tbody.innerHTML = '';
       
       pStats.forEach(p => {
-        const pnl = p.profit;
-        const color = pnl > 0 ? 'var(--green)' : (pnl < 0 ? 'var(--red-bright)' : 'var(--text-main)');
-        const sign = pnl > 0 ? '+' : '';
+        const score = p.score;
+        const color = score > 0 ? 'var(--green)' : (score < 0 ? 'var(--red-bright)' : 'var(--text-main)');
+        const sign = score > 0 ? '+' : '';
         tbody.innerHTML += `
           <tr>
             <td style="font-weight:600; color:#fff;">${esc(p.name)}</td>
             <td class="text-right text-dim">${p.bets}</td>
-            <td class="text-right font-mono text-dim">${fmt(p.staked)} Pts</td>
-            <td class="text-right font-mono" style="color:${color}; font-weight:bold;">${sign}${fmt(pnl)} Pts</td>
+            <td class="text-right font-mono text-dim">${fmt(p.totalRisk)} Pts</td>
+            <td class="text-right font-mono" style="color:${color}; font-weight:bold;">${sign}${fmt(score)} Pts</td>
           </tr>
         `;
       });
@@ -975,7 +931,7 @@
 
     document.getElementById('btnGenerateBill').addEventListener('click', () => {
       SoundEngine.playWin();
-      if(!state || !state.markets) return showToast('尚無資料可產出帳單', 'error');
+      if(!state || !state.markets) return showToast('尚無資料可產出積分報告', 'error');
       
       const res = roomSettlement(state, pools);
       const billText = generateFormattedBill(state, pools);
@@ -983,37 +939,41 @@
       const visualCard = document.getElementById('visualBillCard');
       let vHtml = `
         <div class="d-flex justify-between align-center mb-3">
-          <h4 style="color:var(--gold-bright); margin:0;">👑 ${esc(state.roomTitle)} · 結算明細卡</h4>
-          <span class="badge badge-open">包廂莊家: ${esc(state.hostName)}</span>
+          <h4 style="color:var(--gold-bright); margin:0;">✨ ${esc(state.roomTitle)} · 積分報告</h4>
+          <span class="badge badge-open">主持人: ${esc(state.hostName)}</span>
         </div>
         <div class="summary-strip mb-3">
           <div class="stat-card blue">
-            <div class="lbl">總活動點數</div>
-            <div class="num text-gold">${fmt(res.totalPool)} Pts</div>
+            <div class="lbl">累計風險分數</div>
+            <div class="num text-gold">${fmt(res.totalRisk)} Pts</div>
           </div>
           <div class="stat-card blue">
-            <div class="lbl">主持人點數抽成</div>
-            <div class="num text-cyan">+${fmt(res.hostRake)} Pts</div>
+            <div class="lbl">參與者正分</div>
+            <div class="num pos">+${fmt(res.totalPositive)} Pts</div>
           </div>
           <div class="stat-card">
-            <div class="lbl">主持人點數損益</div>
-            <div class="num ${res.hostNet >= 0 ? 'pos' : 'neg'}">${res.hostNet >= 0 ? '+' : ''}${fmt(res.hostNet)} Pts</div>
+            <div class="lbl">參與者負分</div>
+            <div class="num neg">-${fmt(res.totalNegative)} Pts</div>
+          </div>
+          <div class="stat-card">
+            <div class="lbl">全體淨積分</div>
+            <div class="num ${res.participantNetScore >= 0 ? 'pos' : 'neg'}">${res.participantNetScore >= 0 ? '+' : ''}${fmt(res.participantNetScore)} Pts</div>
           </div>
         </div>
-        <h5 class="text-dim mb-2">玩家活動點數明細：</h5>
+        <h5 class="text-dim mb-2">參與者正負積分明細：</h5>
         <div style="background:rgba(255,255,255,0.03); border-radius:6px; padding:8px 12px;">
       `;
       
       if (res.players.length === 0) {
-        vHtml += `<div class="text-center text-dim p-2">尚無已派彩的客人紀錄</div>`;
+        vHtml += `<div class="text-center text-dim p-2">尚無已公布結果的參與紀錄</div>`;
       } else {
         res.players.forEach(p => {
-          const color = p.profit > 0 ? 'var(--green)' : (p.profit < 0 ? 'var(--red-bright)' : 'var(--text-main)');
-          const sign = p.profit > 0 ? '👑 贏 +' : (p.profit < 0 ? '💔 輸 -' : '🤝 平 ');
+          const color = p.score > 0 ? 'var(--green)' : (p.score < 0 ? 'var(--red-bright)' : 'var(--text-main)');
+          const sign = p.score > 0 ? '🟢 +' : (p.score < 0 ? '🔴 -' : '⚪ ');
           vHtml += `
             <div class="d-flex justify-between align-center py-2" style="border-bottom:1px solid rgba(255,255,255,0.06);">
               <span style="font-weight:bold; color:#fff;">${esc(p.name)}</span>
-              <span class="font-mono" style="color:${color}; font-weight:bold; font-size:1.05rem;">${sign}${fmt(Math.abs(p.profit))} Pts</span>
+              <span class="font-mono" style="color:${color}; font-weight:bold; font-size:1.05rem;">${sign}${fmt(Math.abs(p.score))} Pts</span>
             </div>
           `;
         });
@@ -1025,24 +985,24 @@
       const container = document.getElementById('billContainer');
       out.value = billText;
       container.style.display = 'block';
-      showToast('超清晰結算明細表已成功生成！', 'success');
+      showToast('活動積分報告已生成！', 'success');
     });
 
     document.getElementById('btnCopyBill').addEventListener('click', () => {
       SoundEngine.playChip();
       const out = document.getElementById('billOutput');
       navigator.clipboard.writeText(out.value).then(() => {
-        showToast('結算帳單已成功複製到剪貼簿！可直接貼至 LINE / 微信', 'success');
+        showToast('積分報告已複製到剪貼簿！', 'success');
       });
     });
 
     document.getElementById('btnResetRoom').addEventListener('click', async () => {
-      if (state?.status === 'archived') return showToast('此包廂已封存', 'info');
+      if (state?.status === 'archived') return showToast('此活動已封存', 'info');
       const unsettled = (state?.markets || []).filter(market => !market.settled && !market.archived);
       if (unsettled.length > 0) {
-        return showToast(`仍有 ${unsettled.length} 個盤口尚未結算，請先完成結算`, 'error');
+        return showToast(`仍有 ${unsettled.length} 個題目尚未公布結果，請先完成`, 'error');
       }
-      if(!confirm('封存後將停止建立盤口與發布戰況，但會完整保留下注、盤口及審計紀錄。確定繼續？')) return;
+      if(!confirm('封存後將停止建立題目與發布戰況，但會完整保留預測、題目及審計紀錄。確定繼續？')) return;
 
       const auditKey = roomRef.child('auditLogs').push().key;
       const updates = {};
@@ -1053,10 +1013,10 @@
       try {
         await roomRef.update(updates);
         SoundEngine.playLock();
-        showToast('包廂已封存，下注與帳務紀錄完整保留', 'success');
+        showToast('活動已封存，預測與積分紀錄完整保留', 'success');
       } catch (error) {
         console.error(error);
-        showToast('封存包廂失敗：' + error.message, 'error');
+        showToast('封存活動失敗：' + error.message, 'error');
       }
     });
 
