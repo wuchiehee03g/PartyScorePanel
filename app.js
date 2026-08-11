@@ -27,7 +27,7 @@ const CATEGORIES = [
   { key: 'custom', label: '自訂題目', hint: '自由設定預測選項' },
 ];
 
-// 夜店／包廂熱門預測題目
+// 現場活動／包廂熱門預測題目
 const NIGHTLIFE_PRESETS = [
   { id:'dice_duel', group:'dice', title:'吹牛對決 (1v1)', desc:'輪流喊數並可質疑，依現場約定判定勝負', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'niuniu', group:'dice', title:'妞妞（牛牛）', desc:'常見五張牌玩法：三張湊十的倍數，剩兩張比牛數；牌型以本局主持人說明為準', category:'duel', options:[{label:'玩家勝'},{label:'主持人方勝'}] },

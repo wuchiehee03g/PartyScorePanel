@@ -27,9 +27,11 @@ BetPanel 是給現場派對、團體活動與私人聚會使用的即時預測�
 4. 驗證成功後，由 Admin SDK 寫入不可由前端修改的 `roomAccess/{roomId}` 六小時授權。
 5. 退款、拒付、人工補單與授權復原全部保留伺服器稽核紀錄。
 
-`roomAccess` 與 `privatePayments` 已在 Firebase Rules 中設為前端不可讀寫；真正串接前仍需實作 Cloud Functions、訂單資料庫及正式帳號／跨裝置復原機制。Anonymous Auth 若因清除網站資料而更換 UID，會失去原房間管理權，因此不適合直接承接正式已付款訂單。
+`roomAccess` 與 `privatePayments` 已在 Firebase Rules 中設為前端不可讀寫；真正串接前仍需實作 Cloud Functions、訂單資料庫及[低摩擦房間復原機制](ROOM_RECOVERY_DESIGN.md)。正式版本不要求傳統帳號密碼：同瀏覽器自動恢復，另提供私人管理 QR／復原碼及選填 Email 備援。Anonymous Auth 若因清除網站資料而更換 UID，仍須由可信後端驗證私人權杖並核發原 `hostUid` 的 Custom Token，不能只靠公開活動代碼接管。
 
 藍新金流官方雖允許自然人註冊，但其[商店管理規範](https://www.newebpay.com/website/Page/content/store_policy)把「賭場及博奕相關產業」列為禁止項目。BetPanel 在申請前應如實提供自訂風險分數、正負計分公式與主持人報表的完整流程，先取得藍新業務／法遵的書面可承作確認，並完成台灣法律專業評估；本次產品調整不構成核准或法律合規保證。
+
+網站核准後仍可進行一般維護，但新增敏感範本、金流或改變服務定位應先取得藍新確認；不可用送審時暫時隱藏、核准後再恢復的方式規避審查。詳細原則見 [NEWEB_CONTENT_CHANGE_POLICY.md](NEWEB_CONTENT_CHANGE_POLICY.md)。
 
 ## 現有功能
 

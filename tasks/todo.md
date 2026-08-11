@@ -123,4 +123,21 @@
 - `npm.cmd run check`：14 項核心／靜態測試與兩頁 inline script 全數通過。
 - `npm.cmd run test:rules`：7 組 Realtime Database Rules Emulator 測試全數通過；本次未修改或部署 Rules。
 - GitHub Pages 已載入 `plain-flow1`，參與者頁、主持人頁及服務說明頁均無 console error。
-- 正式收款前仍須完成：支付 webhook 後端、待啟用單場使用權、正式帳號／跨裝置復原、冪等對帳及退款拒付流程；詳見 `PAYMENT_READINESS.md`。
+- 正式收款前仍須完成：支付 webhook 後端、付款確認後立即開房、私人管理權杖／跨裝置復原、冪等對帳及退款拒付流程；詳見 `PAYMENT_READINESS.md`。
+
+## 低摩擦房間復原與送審內容原則
+
+- [x] 定義同瀏覽器自動恢復、私人管理 QR／復原碼及選填 Email 備援流程
+- [x] 設計不改 `hostUid` 的安全復原權杖與 Firebase Custom Token 邊界
+- [x] 清理公開 Repository 的指定敏感註解，保留包廂及 KTV 內容
+- [x] 補充送審後一般更新與重大服務變更的處理原則
+- [x] 增補靜態回歸測試並完成 JavaScript、inline script 與 JSON 驗證
+
+### Review
+
+- 新增 `ROOM_RECOVERY_DESIGN.md`：同瀏覽器自動恢復、活動 QR 與私人管理 QR 分離、Email 選填、一次性 128-bit 權杖、雜湊保存、撤銷輪替及 Custom Token 原 UID 復原。
+- 活動代碼、公開 QR、暱稱與既有 PIN 均不得接管主持人後台；Email 不得寫入公開房間 config。
+- 復原功能尚未假裝放入正式 UI；需等支付 webhook、私有訂單資料庫、寄信服務及 Cloud Functions 一起實作。
+- Repository 已移除指定敏感註解，保留包廂與 KTV 使用情境；妞妞、骰寶預設本次未修改。
+- 新增 `NEWEB_CONTENT_CHANGE_POLICY.md`：一般維護可持續進行，敏感範本或服務本質變更應先取得支付商書面確認，不採送審時隱藏、核准後恢復的方式。
+- `npm.cmd run check`：15 項核心／靜態測試及兩頁 inline script 全數通過；正式與範例 Rules、`firebase.json` 均為合法 JSON，本次未修改 Rules。

@@ -179,6 +179,17 @@ test('public pages explain the activity in plain language', () => {
   assert.match(service, /參與者免費加入/);
 });
 
+test('repository positioning avoids nightlife wording while keeping room and KTV use cases', () => {
+  const appSource = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+  const recovery = fs.readFileSync(path.join(__dirname, '..', 'ROOM_RECOVERY_DESIGN.md'), 'utf8');
+  assert.doesNotMatch(appSource, new RegExp('\u591c\u5e97'));
+  assert.match(appSource, /包廂/);
+  assert.match(appSource, /KTV 歡唱評分對決/);
+  assert.match(recovery, /活動代碼不能用來接管後台/);
+  assert.match(recovery, /Custom Token/);
+  assert.match(recovery, /Email 只是選填/);
+});
+
 test('formal and example rules stay byte-for-byte identical', () => {
   const formal = fs.readFileSync(path.join(__dirname, '..', 'database.rules.json'), 'utf8');
   const example = fs.readFileSync(path.join(__dirname, '..', 'firebase.database.rules.example.json'), 'utf8');
