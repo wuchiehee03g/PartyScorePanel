@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BetPanel · 服務說明與政策</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .policy-shell { max-width: 900px; margin: 0 auto; }
+    .policy-nav { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 28px; }
+    .policy-nav a { color:var(--cyan-bright); border:1px solid var(--border); border-radius:999px; padding:8px 12px; text-decoration:none; }
+    .policy-card { scroll-margin-top:16px; line-height:1.8; }
+    .policy-card h2 { color:var(--gold-bright); margin-bottom:10px; }
+    .policy-card h3 { color:#fff; margin:18px 0 6px; }
+    .policy-card ul, .policy-card ol { padding-left:24px; }
+    .policy-card a { color:var(--cyan-bright); }
+    .notice { border-left:4px solid var(--cyan); padding:12px 14px; background:rgba(0,240,255,.06); border-radius:8px; }
+    .price { font:800 1.5rem 'JetBrains Mono', monospace; color:var(--gold-bright); }
+  </style>
+</head>
+<body>
+  <main class="wrap policy-shell">
+    <header class="board-header">
+      <div class="title-block">
+        <div class="eyebrow"><span class="eyebrow-badge">服務資訊</span> BETPANEL</div>
+        <h1>服務說明<span class="accent">與政策</span></h1>
+      </div>
+      <a class="btn btn-outline" href="index.html">返回參與者頁</a>
+    </header>
+
+    <nav class="policy-nav" aria-label="頁面章節">
+      <a href="#service">服務內容</a>
+      <a href="#terms">使用條款</a>
+      <a href="#privacy">隱私政策</a>
+      <a href="#refund">取消與退款</a>
+      <a href="#contact">客服資訊</a>
+    </nav>
+
+    <section id="service" class="card policy-card mb-4">
+      <h2>服務內容與售價</h2>
+      <p>BetPanel 是供派對、聚會與團體活動使用的現場互動預測積分 SaaS。主辦方建立單一活動房間，參與者以活動代碼加入，對題目選項提交自訂風險分數；主持人可截止提交、公布結果及查看逐人與全體積分報告。</p>
+      <p class="price">單一活動房間：預計 NT$200／6 小時</p>
+      <p>費用僅購買一個活動房間的軟體使用時間。參與者無須付費，平台不販售、不預先配置也不接受儲值任何活動積分。</p>
+      <h3>積分規則</h3>
+      <p>N 個選項的題目，參與者自行輸入風險分數 R；結果符合所選項目時淨加 <strong>+(N−1)R</strong>，不符合時淨扣 <strong>−R</strong>。積分可能為正、零或負。</p>
+      <div class="notice">活動積分沒有新臺幣匯率或財產價值，不可購買、轉讓、兌換、提領或折抵平台服務。BetPanel 不保管參與者資金，不處理活動內收付款，也不將積分報表定義為任何人的債權、債務或收益。</div>
+      <p style="margin-top:14px;">目前網站為 Demo／測試版，尚未啟用真實付款。頁面上的「測試啟用」不代表已完成付款。</p>
+    </section>
+
+    <section id="terms" class="card policy-card mb-4">
+      <h2>使用條款</h2>
+      <ol>
+        <li>使用者應具備完全行為能力，並依所在地法律合法使用本服務。</li>
+        <li>本服務僅提供現場互動、題目管理、即時同步與無財產價值的活動積分記錄；不得用於賭博、代收代付、洗錢、詐欺或其他違法用途。</li>
+        <li>主辦方須自行說明每場活動的題目與判定方式；題目結果公布後不可撤回，以維持活動紀錄一致性。</li>
+        <li>使用者不得嘗試未經授權存取他人活動、修改他人預測、干擾服務或繞過安全限制。</li>
+        <li>因網路、裝置或第三方雲端服務短暫中斷，可能造成延遲；只有伺服器成功保存的資料才視為有效紀錄。</li>
+        <li>若發現違法、濫用或有重大資安疑慮，平台得停止相關活動或帳號存取，並依法配合主管機關。</li>
+      </ol>
+      <p>本條款於 2026 年 8 月 11 日更新；正式收款前會再依實際商店與付款流程確認。</p>
+    </section>
+
+    <section id="privacy" class="card policy-card mb-4">
+      <h2>隱私權政策</h2>
+      <h3>蒐集資料</h3>
+      <p>Demo 版使用 Firebase 匿名驗證，會處理隨機使用者識別碼、使用者自填暱稱、活動房間內容、題目、預測、積分、操作時間與必要的技術連線資料。平台不要求參與者提供身分證、銀行帳號或信用卡資料。</p>
+      <h3>使用目的與第三方服務</h3>
+      <p>資料僅用於身分區分、即時同步、活動紀錄、安全防護及故障排查。服務使用 Google Firebase 儲存與同步資料；未來付款將由通過審核的第三方支付頁面處理，BetPanel 不會自行保存完整卡號或信用卡安全碼。</p>
+      <h3>保存與權利</h3>
+      <p>活動封存會保留題目、預測與審計紀錄，以維持結果完整性及處理爭議。使用者如需查詢、更正或刪除依法可處理的個人資料，可透過本頁客服方式提出；涉及不可竄改的活動紀錄時，可能改採去識別化或限制處理。</p>
+      <p>請勿在暱稱、題目或即時戰況中輸入身分證字號、電話、地址、金融帳戶或其他不必要的敏感個資。</p>
+    </section>
+
+    <section id="refund" class="card policy-card mb-4">
+      <h2>取消與退款政策</h2>
+      <p>目前 Demo 版未收取費用。正式付款啟用後，預計採以下原則，並會在結帳前再次明確揭露：</p>
+      <ul>
+        <li>尚未啟用活動房間：可申請取消並退還該筆服務費。</li>
+        <li>因 BetPanel 可歸責的服務異常，導致活動房間無法使用：依無法使用程度辦理全額或比例退款。</li>
+        <li>活動房間已啟用且服務可正常使用：已使用的即時數位服務原則上不退費；法令另有規定者從其規定。</li>
+        <li>退款原則上退回原付款工具；實際入帳時間依支付工具與發卡／金融機構作業為準。</li>
+      </ul>
+      <p>正式上線收款前，平台會補齊可直接提交的退款申請管道、處理天數及訂單查詢方式。</p>
+    </section>
+
+    <section id="contact" class="card policy-card mb-4">
+      <h2>客服與商店資訊</h2>
+      <p><strong>服務名稱：</strong>BetPanel 現場互動預測積分平台</p>
+      <p><strong>公開網址：</strong><a href="https://wuchiehee03g.github.io/BetPanel/">https://wuchiehee03g.github.io/BetPanel/</a></p>
+      <p><strong>目前狀態：</strong>Demo／測試中，尚未受理付款</p>
+      <div class="notice">客服電子信箱、聯絡電話、商店登記名稱與營業人資訊，將在正式啟用付款前公布，並與第三方支付商店申請資料保持一致。</div>
+    </section>
+
+    <footer style="text-align:center; color:var(--text-muted); padding:20px 0 36px; line-height:1.8;">
+      <a href="index.html" style="color:var(--cyan-bright);">參與者頁</a> ·
+      <a href="banker.html" style="color:var(--cyan-bright);">主持人控制台</a><br>
+      © 2026 BetPanel
+    </footer>
+  </main>
+</body>
+</html>

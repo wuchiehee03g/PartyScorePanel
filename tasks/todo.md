@@ -55,3 +55,17 @@
 - `npm.cmd run test:rules`：7 組 Realtime Database Emulator 測試通過。
 - 本機瀏覽器實測玩家入口與主持人建立頁，無 console error，桌面版面顯示正常。
 - 尚未部署 Firebase Rules、尚未推送 GitHub；正式金流仍須由可信後端 webhook 核發場次授權。
+
+## 上線與藍新送審準備
+
+- [x] 確認 `main`、復原提交、遠端與部署目標
+- [x] 依藍新官方規範補齊公開服務資訊與政策入口
+- [x] 在專案外建立不公開的藍新送審資料夾與待填清單
+- [x] 重跑程式、HTML inline script、JSON 與 Rules Emulator 測試
+- [ ] 部署 Realtime Database Rules 至 `betpanel-249dc`
+- [ ] 推送 `main` 並確認 GitHub Pages 已更新
+- [ ] 保存正式頁面截圖與完成送件前缺項盤點
+
+### Review
+
+- 待上線及正式頁面驗證後補充。
