@@ -160,7 +160,8 @@
       <div class="tab-content" id="tab-markets">
         
         <!-- QUICK PRESETS & CREATE MARKET FORM -->
-        <div class="card mb-4">
+        <div class="card mb-4" id="activityWritePanel">
+          <div id="activityWriteNotice" class="plain-guide" style="display:none; color:var(--red-bright);">此活動目前只提供查閱，不能再發布題目或戰況。</div>
           <h3 class="mb-3" style="color:var(--cyan-bright);">⚡ 快速建立 (派對熱門預設)</h3>
           
           <div class="preset-grid mb-3" id="presetGrid"><div class="text-dim">載入預測範本中...</div></div>
@@ -443,6 +444,7 @@
 
     function refreshTimeSensitiveAdminUI() {
       updateSessionTimeUI();
+      updateActivityWriteUI();
       if (state) renderMarkets();
     }
 
@@ -472,6 +474,23 @@
       }
       el.textContent = `剩餘 ${time.hours} 小時 ${time.minutes} 分`;
       el.style.color = 'var(--cyan-bright)';
+    }
+
+    function updateActivityWriteUI() {
+      const panel = document.getElementById('activityWritePanel');
+      const notice = document.getElementById('activityWriteNotice');
+      if (!panel || !notice || !state) return;
+      const archived = state.status === 'archived';
+      const expired = isSessionExpired(state, serverNow());
+      const readOnly = archived || expired;
+      panel.classList.toggle('is-readonly', readOnly);
+      notice.style.display = readOnly ? 'block' : 'none';
+      notice.textContent = archived
+        ? '此活動已封存，只能查閱紀錄，不能再發布題目或戰況。'
+        : '6 小時場次已到期，只能完成截止、公布結果、報告與封存。';
+      panel.querySelectorAll('input, select, button').forEach(control => {
+        control.disabled = readOnly;
+      });
     }
 
     document.getElementById('btnCreateRoom').addEventListener('click', async () => {
@@ -556,6 +575,7 @@
         document.getElementById('infoHostName').textContent = esc(state.hostName || '主持人');
         hostProfile.hostName = state.hostName || hostProfile.hostName;
         updateSessionTimeUI();
+        updateActivityWriteUI();
         
         renderMarkets();
         renderSituationFeedAdmin();

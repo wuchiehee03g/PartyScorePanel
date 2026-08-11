@@ -164,6 +164,8 @@ test('both pages use Firebase server time for session expiry UI', () => {
   assert.match(banker, /visibilitychange/);
   assert.match(player, /活動已封存 · 僅可查閱歷史與積分結果/);
   assert.match(banker, /已封存・僅可查閱紀錄/);
+  assert.match(banker, /updateActivityWriteUI/);
+  assert.match(banker, /control\.disabled = readOnly/);
 });
 
 test('public pages explain the activity in plain language', () => {

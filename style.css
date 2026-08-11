@@ -648,6 +648,18 @@ h1 .accent-b { color: var(--cyan-bright); }
   font-size: 0.88rem;
 }
 
+.is-readonly .preset-card {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.is-readonly input:disabled,
+.is-readonly select:disabled,
+.is-readonly button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 @media (max-width: 640px) {
   .plain-steps,
   .plain-steps-large {
