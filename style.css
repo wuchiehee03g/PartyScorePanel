@@ -531,6 +531,25 @@ h1 .accent-b { color: var(--cyan-bright); }
   font-size: 0.85rem;
 }
 
+.payout-preview span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payout-preview small,
+.option-return-note {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.option-return-note {
+  margin-top: 4px;
+  text-align: right;
+}
+
 /* Preset Grid (Banker) */
 .preset-grid {
   display: grid;

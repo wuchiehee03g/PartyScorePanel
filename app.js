@@ -354,13 +354,25 @@ function correctScoreForPrediction(prediction, market) {
   return roundPoints(payoutForBet(prediction, market) - riskPoints);
 }
 
+// 顯示用的答對總計：包含原投入的風險分數；帳本仍以 correctScoreForPrediction 記錄淨變動。
+function correctTotalForPrediction(prediction, market) {
+  if (!prediction || !market) return 0;
+  if (isSignedScoreMarket(market)) {
+    return roundPoints(riskPointsOf(prediction) + correctScoreForPrediction(prediction, market));
+  }
+  return payoutForBet(prediction, market);
+}
+
 function scorePreview(riskPoints, market) {
   const normalizedRisk = Math.max(0, Number(riskPoints) || 0);
   const multiplier = Math.max(1, marketOptionCount(market) - 1);
+  const correct = roundPoints(normalizedRisk * multiplier);
   return {
-    correct: roundPoints(normalizedRisk * multiplier),
+    correct,
+    correctTotal: roundPoints(normalizedRisk + correct),
     incorrect: -normalizedRisk,
     multiplier,
+    totalMultiplier: multiplier + 1,
     optionCount: marketOptionCount(market)
   };
 }
@@ -724,6 +736,7 @@ if (typeof module !== 'undefined' && module.exports) {
     riskPointsOf,
     scoreMultiplierForPrediction,
     correctScoreForPrediction,
+    correctTotalForPrediction,
     scorePreview,
     buildDuelMarket,
     buildCustomMarket,

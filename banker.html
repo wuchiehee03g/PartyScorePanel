@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=gross-score1">
   
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
   
   <!-- Core Engine -->
-  <script src="app.js?v=signed-score1"></script>
+  <script src="app.js?v=gross-score1"></script>
 </head>
 <body class="banker-mode">
 
@@ -763,7 +763,7 @@
             <div>${statusBadge}</div>
           </div>
           <div class="text-dim mb-3" style="font-size:0.82rem;">
-            累計風險分數: <strong class="text-gold">${fmt(totalP)} Pts</strong> │ ${isSignedScoreMarket(m) ? `${marketOptionCount(m)} 選一：答對 +${marketOptionCount(m)-1}R／答錯 −R` : '舊版題目：依既有鎖定資料完成結果計算'}
+            累計風險分數: <strong class="text-gold">${fmt(totalP)} Pts</strong> │ ${isSignedScoreMarket(m) ? `${marketOptionCount(m)} 選一：答對總計 ${marketOptionCount(m)}R（含投入；淨 +${marketOptionCount(m)-1}R）／答錯總計 0R（淨 −R）` : '舊版題目：依既有鎖定資料完成結果計算'}
           </div>
         `;
         

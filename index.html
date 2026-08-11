@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=gross-score1">
     
     <!-- Firebase SDK compat -->
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
     
     <!-- Core App Engine -->
-    <script src="app.js?v=signed-score1"></script>
+    <script src="app.js?v=gross-score1"></script>
 </head>
 <body>
 
@@ -154,7 +154,7 @@
                         </div>
                         <div class="table-responsive">
                             <table>
-                                <thead><tr><th>時間</th><th>參與者</th><th>題目／選項</th><th class="text-right">風險分數</th><th class="text-right">可能正分</th><th class="text-center">狀態</th></tr></thead>
+                                <thead><tr><th>時間</th><th>參與者</th><th>題目／選項</th><th class="text-right">風險分數</th><th class="text-right">答對總計</th><th class="text-center">狀態</th></tr></thead>
                                 <tbody id="publicLedgerBody"></tbody>
                             </table>
                         </div>
@@ -170,7 +170,7 @@
                                             <th>預測題目</th>
                                             <th>選擇結果</th>
                                             <th class="text-right">風險分數</th>
-                                            <th class="text-right">可能正分</th>
+                                            <th class="text-right">答對總計</th>
                                             <th class="text-center">狀態</th>
                                             <th class="text-right">淨積分</th>
                                         </tr>
@@ -633,7 +633,10 @@
                             <div class="option-meta">預測占比: ${poolPercent.toFixed(1)}%（風險分數 ${fmt(poolAmt)} Pts）</div>
                         </div>
                         
-                        <div class="option-odds-box"><div class="odds-chip">${isSignedScoreMarket(m) ? `答對 +${marketOptionCount(m)-1}R` : '舊版'}</div></div>
+                        <div class="option-odds-box">
+                            <div class="odds-chip">${isSignedScoreMarket(m) ? `答對總計 ${marketOptionCount(m)}R` : '舊版'}</div>
+                            ${isSignedScoreMarket(m) ? `<div class="option-return-note">含投入・淨 +${marketOptionCount(m)-1}R</div>` : ''}
+                        </div>
                     </div>
                 `;
             });
@@ -647,14 +650,17 @@
                 const amountNum = parseInt(currentDraftAmt) || 0;
                 
                 let estCorrectScore = 0;
+                let estCorrectTotal = 0;
                 let estIncorrectScore = 0;
                 if (selectedOptObj && amountNum > 0) {
                     if (isSignedScoreMarket(m)) {
                         const preview = scorePreview(amountNum, m);
                         estCorrectScore = preview.correct;
+                        estCorrectTotal = preview.correctTotal;
                         estIncorrectScore = preview.incorrect;
                     } else {
                         estCorrectScore = correctScoreForPrediction({ amount: amountNum, oddsAtBet: selectedOptObj.odds }, m);
+                        estCorrectTotal = correctTotalForPrediction({ amount: amountNum, oddsAtBet: selectedOptObj.odds }, m);
                         estIncorrectScore = -amountNum;
                     }
                 }
@@ -678,8 +684,8 @@
                         
                         ${selectedOptObj && amountNum > 0 ? `
                             <div class="payout-preview">
-                                <span>預測正確：<strong class="text-green">+${fmt(estCorrectScore)} Pts</strong></span>
-                                <span>預測錯誤：<strong style="color:var(--red-bright)">${fmt(estIncorrectScore)} Pts</strong></span>
+                                <span>答對總計：<strong class="text-green">${fmt(estCorrectTotal)} Pts</strong><small>（含投入；淨 +${fmt(estCorrectScore)}）</small></span>
+                                <span>答錯總計：<strong style="color:var(--red-bright)">0 Pts</strong><small>（淨 ${fmt(estIncorrectScore)}）</small></span>
                             </div>
                         ` : ''}
                         
@@ -737,8 +743,8 @@
                 const outcome = betOutcome(state, pools, b);
                 const status = outcome.status === 'win' ? '🟢 正分' : (outcome.status === 'lose' ? '🔴 負分' : '⏳ 待公布');
                 const bettor = b.name ? esc(b.name) : '匿名#' + esc(String(b.bettorId || '').slice(-6));
-                const possiblePositive = m ? correctScoreForPrediction(b, m) : 0;
-                return `<tr><td class="text-dim">${new Date(b.ts || Date.now()).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</td><td>${bettor}</td><td><span class="text-cyan">${esc(m ? m.title : '未知題目')}</span><br><span class="text-dim">${esc(opt ? opt.label : b.optionId)}</span></td><td class="text-right font-mono">${fmt(riskPointsOf(b))} Pts</td><td class="text-right font-mono text-gold">+${fmt(possiblePositive)} Pts</td><td class="text-center">${status}</td></tr>`;
+                const correctTotal = m ? correctTotalForPrediction(b, m) : 0;
+                return `<tr><td class="text-dim">${new Date(b.ts || Date.now()).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</td><td>${bettor}</td><td><span class="text-cyan">${esc(m ? m.title : '未知題目')}</span><br><span class="text-dim">${esc(opt ? opt.label : b.optionId)}</span></td><td class="text-right font-mono">${fmt(riskPointsOf(b))} Pts</td><td class="text-right font-mono text-gold">${fmt(correctTotal)} Pts</td><td class="text-center">${status}</td></tr>`;
             }).join('');
         }
         function renderMyBets() {
@@ -790,7 +796,7 @@
                         <td style="font-weight: 600;">${esc(mTitle)}</td>
                         <td style="color: var(--cyan-bright); font-weight: 600;">${esc(optLabel)}</td>
                         <td class="text-right font-mono">${fmt(riskPointsOf(b))} Pts</td>
-                        <td class="text-right font-mono text-gold">+${fmt(m ? correctScoreForPrediction(b, m) : 0)} Pts</td>
+                        <td class="text-right font-mono text-gold">${fmt(m ? correctTotalForPrediction(b, m) : 0)} Pts</td>
                         <td class="text-center">${statusBadge}</td>
                         <td class="text-right font-mono" style="${pnlClass}">${pnlStr}</td>
                     </tr>
@@ -888,8 +894,8 @@
                 SoundEngine.playBet();
                 const preview = isSignedScoreMarket(freshM)
                     ? scorePreview(riskPoints, freshM)
-                    : { correct: correctScoreForPrediction(prediction, freshM), incorrect: -riskPoints };
-                showToast(`預測已提交：答對 +${fmt(preview.correct)}／答錯 ${fmt(preview.incorrect)} Pts`, 'success');
+                    : { correct: correctScoreForPrediction(prediction, freshM), correctTotal: correctTotalForPrediction(prediction, freshM), incorrect: -riskPoints };
+                showToast(`預測已提交：答對總計 ${fmt(preview.correctTotal)}（淨 +${fmt(preview.correct)}）／答錯淨 ${fmt(preview.incorrect)} Pts`, 'success');
                 
                 draftAmounts[marketId] = "";
                 renderAll();
@@ -897,7 +903,17 @@
             } catch (err) {
                 console.error(err);
                 SoundEngine.playError();
-                showToast('網路錯誤，預測提交失敗', 'error');
+                const code = String(err && err.code || '').toLowerCase();
+                const message = String(err && err.message || '');
+                if (code.includes('permission') || message.toLowerCase().includes('permission_denied')) {
+                    showToast('提交被拒絕：請重新整理頁面，並確認場次尚未到期、題目仍開放', 'error');
+                } else if (code.includes('auth')) {
+                    showToast('身份驗證失效，請重新整理頁面後再試', 'error');
+                } else if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                    showToast('目前裝置已離線，恢復網路後再試', 'error');
+                } else {
+                    showToast('連線暫時中斷，請稍後重試；若持續發生請重新整理頁面', 'error');
+                }
             }
         }
 

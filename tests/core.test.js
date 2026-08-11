@@ -16,14 +16,16 @@ test('legacy fixed-odds records remain readable with their original calculation'
   );
 });
 
-test('option-count scoring keeps the original zero-rake net result as signed points', () => {
+test('option-count scoring exposes gross totals while preserving signed net points', () => {
   const twoOptions = { scoringMode: app.SCORE_MODE, optionCount: 2, options: [{ id: 'a' }, { id: 'b' }] };
   const threeOptions = { scoringMode: app.SCORE_MODE, optionCount: 3, options: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] };
   const fourOptions = { scoringMode: app.SCORE_MODE, optionCount: 4, options: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }] };
 
-  assert.deepEqual(app.scorePreview(100, twoOptions), { correct: 100, incorrect: -100, multiplier: 1, optionCount: 2 });
-  assert.deepEqual(app.scorePreview(100, threeOptions), { correct: 200, incorrect: -100, multiplier: 2, optionCount: 3 });
-  assert.deepEqual(app.scorePreview(100, fourOptions), { correct: 300, incorrect: -100, multiplier: 3, optionCount: 4 });
+  assert.deepEqual(app.scorePreview(100, twoOptions), { correct: 100, correctTotal: 200, incorrect: -100, multiplier: 1, totalMultiplier: 2, optionCount: 2 });
+  assert.deepEqual(app.scorePreview(100, threeOptions), { correct: 200, correctTotal: 300, incorrect: -100, multiplier: 2, totalMultiplier: 3, optionCount: 3 });
+  assert.deepEqual(app.scorePreview(100, fourOptions), { correct: 300, correctTotal: 400, incorrect: -100, multiplier: 3, totalMultiplier: 4, optionCount: 4 });
+  assert.equal(app.correctTotalForPrediction({ riskPoints: 100, scoreMultiplierAtPrediction: 1 }, twoOptions), 200);
+  assert.equal(app.correctTotalForPrediction({ riskPoints: 100, scoreMultiplierAtPrediction: 2 }, threeOptions), 300);
 });
 
 test('normalize preserves room ownership and archive state', () => {
@@ -121,8 +123,17 @@ test('commercial UI uses signed risk scores without odds, rake, payout, or host 
   assert.match(banker, /optionCount:\s*optionsArr\.length/);
   for (const source of [player, banker]) {
     assert.doesNotMatch(source, /x\d+\.\d+|抽水率|結算派彩|主持人點數損益|莊家收益拆算/);
-    assert.match(source, /app\.js\?v=signed-score1/);
+    assert.match(source, /app\.js\?v=gross-score1/);
   }
+});
+
+test('player submission distinguishes permission, auth, and offline failures from network errors', () => {
+  const player = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(player, /code\.includes\('permission'\)/);
+  assert.match(player, /場次尚未到期、題目仍開放/);
+  assert.match(player, /code\.includes\('auth'\)/);
+  assert.match(player, /navigator\.onLine === false/);
+  assert.doesNotMatch(player, /網路錯誤，預測提交失敗/);
 });
 
 test('both pages use Firebase server time for session expiry UI', () => {
