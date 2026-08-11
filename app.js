@@ -28,12 +28,8 @@ const CATEGORIES = [
 ];
 
 // 現場活動／包廂熱門預測題目
-const NIGHTLIFE_PRESETS = [
-  { id:'dice_duel', group:'dice', title:'吹牛對決 (1v1)', desc:'輪流喊數並可質疑，依現場約定判定勝負', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
-  { id:'niuniu', group:'dice', title:'妞妞（牛牛）', desc:'常見五張牌玩法：三張湊十的倍數，剩兩張比牛數；牌型以本局主持人說明為準', category:'duel', options:[{label:'玩家勝'},{label:'主持人方勝'}] },
-  { id:'sicbo', group:'dice', title:'骰寶', desc:'常見為三顆骰子：總和 4–10 為小、11–17 為大，圍骰另計；以本局主持人說明為準', category:'custom', options:[{label:'大 (11-17)'},{label:'小 (4-10)'},{label:'圍骰／豹子 (三同數)'}] },
-  { id:'blackjack', group:'dice', title:'21 點', desc:'常見玩法以接近 21 且不爆牌為目標；補牌與和局規則以本局主持人說明為準', category:'multi', options:[{label:'玩家勝'},{label:'主持人方勝'},{label:'和局'}] },
-  { id:'eighteen', group:'dice', title:'十八啦', desc:'常見為四骰配對與剩餘點數計分，地方規則差異較大；以本局主持人說明為準', category:'duel', options:[{label:'玩家方勝'},{label:'主持人方勝'}] },
+const ACTIVITY_PRESETS = [
+  { id:'bluff_duel', group:'duel', title:'吹牛對決 (1v1)', desc:'輪流喊數並可質疑，依現場約定判定勝負', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
 
 
 
@@ -41,12 +37,14 @@ const NIGHTLIFE_PRESETS = [
 
 
 
+  { id:'rock_paper_scissors', group:'punch', title:'猜拳對決', desc:'以現場約定局數進行剪刀、石頭、布對決', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'singapore_punch', group:'punch', title:'新加坡拳', desc:'常見為拍手、猜拳決定攻守，再比上下左右；以本局主持人說明為準', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'punch_5_10_15', group:'punch', title:'5／10／15 划拳', desc:'常見為雙手以 0／5 出拳並喊總數，不是局數；以本局主持人說明為準', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'seaweed_punch', group:'punch', title:'海帶拳', desc:'常見使用「海帶呀海帶」口訣與手勢攻守輪替；以本局主持人說明為準', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'drink_speed', group:'challenge', title:'飲品速度挑戰', desc:'同樣份量，預測誰先完成；請以安全、適量或無酒精飲品進行', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'drink_volume', group:'challenge', title:'限時飲用量挑戰', desc:'同樣時間，預測誰完成更多；請以安全、適量或無酒精飲品進行', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'drink_target', group:'challenge', title:'指定杯數挑戰', desc:'預測誰先完成指定杯數；請以安全、適量或無酒精飲品進行', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
+  { id:'song_guess', group:'challenge', title:'猜歌挑戰', desc:'播放前奏或提供提示，預測哪位參與者先答對', category:'duel', options:[{label:'選手 A'},{label:'選手 B'}] },
   { id:'ktv_score', group:'challenge', title:'KTV 歡唱評分對決', desc:'預測下一首歌是否突破 90 分', category:'custom', options:[{label:'高分突破 (>=90)'},{label:'未達標準 (<90)'}] },
   { id:'king_mild', group:'king', title:'國王大冒險｜輕度', desc:'輕度互動挑戰，請先取得參與者同意', category:'multi', options:[{label:'指定唱歌'},{label:'趣味問答'},{label:'模仿動作'},{label:'分享故事'}] },
   { id:'king_medium', group:'king', title:'國王大冒險｜中度', desc:'中度互動挑戰，請先取得參與者同意', category:'multi', options:[{label:'即興表演'},{label:'指定舞步'},{label:'真心話'},{label:'團體任務'}] },
@@ -735,7 +733,7 @@ if (typeof module !== 'undefined' && module.exports) {
     SESSION_DURATION_MS,
     SCORE_MODE,
     CATEGORIES,
-    NIGHTLIFE_PRESETS,
+    ACTIVITY_PRESETS,
     SoundEngine,
     esc,
     fmt,

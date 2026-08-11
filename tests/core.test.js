@@ -140,7 +140,7 @@ test('commercial UI uses signed risk scores without odds, rake, payout, or host 
   assert.match(banker, /optionCount:\s*optionsArr\.length/);
   for (const source of [player, banker]) {
     assert.doesNotMatch(source, /x\d+\.\d+|抽水率|結算派彩|主持人點數損益|莊家收益拆算/);
-    assert.match(source, /app\.js\?v=plain-flow1/);
+    assert.match(source, /app\.js\?v=safe-presets1/);
   }
 });
 
@@ -181,13 +181,29 @@ test('public pages explain the activity in plain language', () => {
 
 test('repository positioning avoids nightlife wording while keeping room and KTV use cases', () => {
   const appSource = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+  const banker = fs.readFileSync(path.join(__dirname, '..', 'banker.html'), 'utf8');
   const recovery = fs.readFileSync(path.join(__dirname, '..', 'ROOM_RECOVERY_DESIGN.md'), 'utf8');
   assert.doesNotMatch(appSource, new RegExp('\u591c\u5e97'));
+  assert.doesNotMatch(appSource + banker, new RegExp('\u599e\u599e|\u9ab0\u5bf6|21\\s*\u9ede|\u5341\u516b\u5566'));
+  assert.doesNotMatch(appSource + banker, new RegExp(['NIGHT', 'LIFE_PRESETS'].join('')));
+  assert.match(appSource, /ACTIVITY_PRESETS/);
+  assert.match(banker, /派對對決/);
+  assert.match(appSource + banker, /猜歌挑戰/);
+  assert.match(appSource + banker, /猜拳對決/);
   assert.match(appSource, /包廂/);
   assert.match(appSource, /KTV 歡唱評分對決/);
   assert.match(recovery, /活動代碼不能用來接管後台/);
   assert.match(recovery, /Custom Token/);
   assert.match(recovery, /Email 只是選填/);
+});
+
+test('friend promotion grants software time only and stays server-authorized', () => {
+  const promo = fs.readFileSync(path.join(__dirname, '..', 'FRIEND_PROMO_DESIGN.md'), 'utf8');
+  assert.match(promo, /single_room_6h_twd_200_free/);
+  assert.match(promo, /同一個已驗證 Email/);
+  assert.match(promo, /前端不得直接把房間標成免費/);
+  assert.match(promo, /不是舊版點數兌換碼/);
+  assert.match(promo, /不能換成現金、活動 Pts、獎品、退款或其他利益/);
 });
 
 test('formal and example rules stay byte-for-byte identical', () => {

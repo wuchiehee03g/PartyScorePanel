@@ -15,6 +15,8 @@
 
 主持人不需要傳統帳號密碼。正式版本採同瀏覽器自動恢復，另提供可截圖保存的私人管理 QR／復原碼；Email 為選填備援，只用來寄送管理連結。活動代碼是公開資訊，不能用來接管後台。完整安全規格見 [ROOM_RECOVERY_DESIGN.md](ROOM_RECOVERY_DESIGN.md)。
 
+朋友推廣採獨立的好友體驗碼，只免除一次六小時房間使用費，不提供活動積分或任何可兌換價值。同一組活動碼若要做到每人一次，需驗證 Email 並由後端原子記錄兌換；完整規格見 [FRIEND_PROMO_DESIGN.md](FRIEND_PROMO_DESIGN.md)。
+
 ## 建議狀態
 
 ```text
@@ -63,4 +65,4 @@
 
 完成以上項目並取得支付商書面可承作確認後，才適合把 Demo 的「測試啟用」換成正式付款與啟用流程。
 
-送審後的網站維護及重大服務變更界線見 [NEWEB_CONTENT_CHANGE_POLICY.md](NEWEB_CONTENT_CHANGE_POLICY.md)。不要在送審時暫時隱藏敏感範本、核准後再恢復；如要保留妞妞、骰寶等官方預設，應在送審前如實揭露並取得書面確認。
+送審後的網站維護及重大服務變更界線見 [NEWEB_CONTENT_CHANGE_POLICY.md](NEWEB_CONTENT_CHANGE_POLICY.md)。不要在送審時暫時隱藏敏感範本、核准後再恢復；新增任何可能改變支付商風險判斷的官方預設前，應如實揭露並取得書面確認。
