@@ -177,12 +177,16 @@ test('public pages explain the activity in plain language', () => {
   assert.match(banker, /主持人只要做 4 件事/);
   assert.match(service, /用手機就能加入的現場活動計分工具/);
   assert.match(service, /參與者免費加入/);
+  assert.match(service, /官方快速範本以猜歌、KTV 歡唱評分、猜拳與划拳/);
+  assert.match(service, /好友體驗優惠只會免除一次六小時房間的軟體使用費/);
+  assert.match(service, /正式啟用前仍須完成 Email 驗證與可信後端兌換流程/);
 });
 
 test('repository positioning avoids nightlife wording while keeping room and KTV use cases', () => {
   const appSource = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
   const banker = fs.readFileSync(path.join(__dirname, '..', 'banker.html'), 'utf8');
   const recovery = fs.readFileSync(path.join(__dirname, '..', 'ROOM_RECOVERY_DESIGN.md'), 'utf8');
+  const service = fs.readFileSync(path.join(__dirname, '..', 'service-info.html'), 'utf8');
   assert.doesNotMatch(appSource, new RegExp('\u591c\u5e97'));
   assert.doesNotMatch(appSource + banker, new RegExp('\u599e\u599e|\u9ab0\u5bf6|21\\s*\u9ede|\u5341\u516b\u5566'));
   assert.doesNotMatch(appSource + banker, new RegExp(['NIGHT', 'LIFE_PRESETS'].join('')));
@@ -192,6 +196,8 @@ test('repository positioning avoids nightlife wording while keeping room and KTV
   assert.match(appSource + banker, /猜拳對決/);
   assert.match(appSource, /包廂/);
   assert.match(appSource, /KTV 歡唱評分對決/);
+  assert.match(service, /不提供賭場、牌桌或骰局類官方範本/);
+  assert.doesNotMatch(service, new RegExp('\u599e\u599e|\u9ab0\u5bf6|21\\s*\u9ede|\u5341\u516b\u5566'));
   assert.match(recovery, /活動代碼不能用來接管後台/);
   assert.match(recovery, /Custom Token/);
   assert.match(recovery, /Email 只是選填/);
