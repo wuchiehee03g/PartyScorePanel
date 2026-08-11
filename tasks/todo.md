@@ -62,10 +62,15 @@
 - [x] 依藍新官方規範補齊公開服務資訊與政策入口
 - [x] 在專案外建立不公開的藍新送審資料夾與待填清單
 - [x] 重跑程式、HTML inline script、JSON 與 Rules Emulator 測試
-- [ ] 部署 Realtime Database Rules 至 `betpanel-249dc`
-- [ ] 推送 `main` 並確認 GitHub Pages 已更新
-- [ ] 保存正式頁面截圖與完成送件前缺項盤點
+- [x] 部署 Realtime Database Rules 至 `betpanel-249dc`
+- [x] 推送 `main` 並確認 GitHub Pages 已更新
+- [x] 保存正式頁面截圖與完成送件前缺項盤點
 
 ### Review
 
-- 待上線及正式頁面驗證後補充。
+- `npm.cmd run check`：11 項核心／靜態測試通過，兩頁 inline script 通過 `node --check`。
+- `npm.cmd run test:rules`：7 組 Realtime Database Emulator 測試通過。
+- `firebase.cmd deploy --only database --project betpanel-249dc`：正式 Rules 語法檢查與發布成功。
+- GitHub `main` 已推送，正式參與者頁、主持人頁與服務政策頁均顯示新版內容。
+- 正式頁面重新載入後 Firebase Anonymous Auth 連線成功，三頁未出現新的 console error。
+- 專案外 `BetPanel-藍新送審資料` 已建立 11 份說明／範本／檢查文件與 3 張正式畫面證明；送件前仍須補真實客服與申請人資料，並取得藍新書面可承作回覆。
