@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=gross-score1">
+  <link rel="stylesheet" href="style.css?v=plain-flow1">
   
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
   
   <!-- Core Engine -->
-  <script src="app.js?v=gross-score1"></script>
+  <script src="app.js?v=plain-flow1"></script>
 </head>
 <body class="banker-mode">
 
@@ -54,8 +54,17 @@
       <div class="card card-gold-glow form-card-centered mb-4">
         <h3 style="color:var(--gold-bright); margin:0 0 8px;">🎟️ 單次活動房間使用權</h3>
         <div class="font-mono text-gold" style="font-size:1.8rem; font-weight:800;">NT$200／6 小時</div>
-        <p class="text-dim" style="font-size:0.82rem; margin-top:8px;">一次購買只啟用一個活動房間，不建立錢包、不儲值，也不販售參與者積分。</p>
+        <p class="text-dim" style="font-size:0.82rem; margin-top:8px;">這筆費用只買一個活動房間的使用時間。參與者免費加入，不用買點數，也不用先有點數。</p>
         <p style="font-size:0.8rem; margin-top:8px; color:var(--cyan-bright);">目前尚未串接付款；以下按鈕只會建立 6 小時測試場次，不代表已完成付款。</p>
+        <div class="plain-guide" style="margin-top:14px; text-align:left;">
+          <div class="plain-guide-title">主持人只要做 4 件事</div>
+          <div class="plain-steps">
+            <span><b>1</b> 建立活動</span>
+            <span><b>2</b> 發布題目</span>
+            <span><b>3</b> 截止並公布結果</span>
+            <span><b>4</b> 查看積分報告</span>
+          </div>
+        </div>
       </div>
 
       <!-- CREATE ROOM CARD -->
@@ -75,7 +84,7 @@
         <div class="form-group">
           <label>單次最高風險分數 (Pts)</label>
           <input type="number" id="maxRiskPoints" value="10000" min="100" step="500">
-          <p class="text-dim" style="font-size:0.78rem; margin-top:4px;">參與者不需要預先持有積分；每次可自行輸入風險分數。答對依選項數加分，答錯扣除相同風險分數。</p>
+          <p class="text-dim" style="font-size:0.78rem; margin-top:4px;">這只是每次可輸入的分數上限。參與者不用先有點數，每次可自行決定要輸入多少。</p>
         </div>
 
         <button class="btn btn-cyan w-100 py-3 mt-3" id="btnCreateRoom" style="font-size: 1.05rem;">
@@ -260,11 +269,10 @@
       <section class="card mb-4" style="border-color: var(--cyan);">
         <h3 style="color:var(--cyan-bright); margin-bottom:10px;">📘 主持人操作手冊</h3>
         <ol class="text-dim" style="margin:0; padding-left:22px; line-height:1.8; font-size:0.88rem;">
-          <li>建立活動後，從快速範本選擇題目；選項數會決定答對的淨加分規則。</li>
-          <li>將參與者網址與活動代碼提供給來賓；只有資料庫成功寫入的預測才會列入積分。</li>
-          <li>停止提交時按「截止」；確認結果後再按「公布結果」，公布後不可撤回。</li>
-          <li>發生中止或結果不明時先保留題目與紀錄，不要任意公布結果。</li>
-          <li>活動結束請使用「封存活動」，不要刪除資料或直接修改 Firebase。</li>
+          <li>建立活動，把連結或 6 位代碼交給參與者。</li>
+          <li>選快速範本或自己輸入題目，按「發布預測題目」。</li>
+          <li>不再接受新預測時按「截止」；確認現場結果後再按「公布結果」。結果公布後不能更改。</li>
+          <li>活動結束後產生積分報告，再按「封存活動」。所有紀錄都會保留。</li>
         </ol>
       </section>    <footer style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 40px; padding: 20px 0; line-height:1.8;">
       BetPanel 現場互動預測積分平台 · 資料即時同步 · 積分不可購買、轉讓或兌換<br>
@@ -367,7 +375,7 @@
       auth = firebase.auth();
       db.ref('.info/serverTimeOffset').on('value', snap => {
         serverTimeOffset = Number(snap.val()) || 0;
-        updateSessionTimeUI();
+        refreshTimeSensitiveAdminUI();
       });
       try {
         const credential = await auth.signInAnonymously();
@@ -430,29 +438,39 @@
       setupListeners();
       renderCreateForm();
       if (sessionClockTimer) clearInterval(sessionClockTimer);
-      sessionClockTimer = setInterval(() => {
-        updateSessionTimeUI();
-        if (state) renderMarkets();
-      }, 30000);
+      sessionClockTimer = setInterval(refreshTimeSensitiveAdminUI, 30000);
     }
+
+    function refreshTimeSensitiveAdminUI() {
+      updateSessionTimeUI();
+      if (state) renderMarkets();
+    }
+
+    window.addEventListener('focus', refreshTimeSensitiveAdminUI);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshTimeSensitiveAdminUI();
+    });
 
     function updateSessionTimeUI() {
       const el = document.getElementById('sessionTimeDisplay');
       if (!el || !state) return;
-      if (!state.expiresAt) {
-        el.textContent = '舊版房間（無期限）';
+      if (state.status === 'archived') {
+        el.textContent = '已封存・僅可查閱紀錄';
+        el.style.color = 'var(--red-bright)';
         return;
       }
-      const remaining = state.expiresAt - serverNow();
-      if (remaining <= 0) {
+      const time = sessionTimeParts(state, serverNow());
+      if (time.legacy) {
+        el.textContent = '舊版房間（無期限）';
+        el.style.color = 'var(--cyan-bright)';
+        return;
+      }
+      if (time.expired) {
         el.textContent = '已到期・僅可截止／公布結果／封存';
         el.style.color = 'var(--red-bright)';
         return;
       }
-      const totalMinutes = Math.ceil(remaining / 60000);
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      el.textContent = `剩餘 ${hours} 小時 ${minutes} 分`;
+      el.textContent = `剩餘 ${time.hours} 小時 ${time.minutes} 分`;
       el.style.color = 'var(--cyan-bright)';
     }
 

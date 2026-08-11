@@ -216,6 +216,27 @@ function isSessionActive(state, at = Date.now()) {
   return !!state && state.status !== 'archived' && !isSessionExpired(state, at);
 }
 
+function sessionTimeParts(state, at = Date.now()) {
+  const expiresAt = Number(state && state.expiresAt);
+  if (!Number.isFinite(expiresAt) || expiresAt <= 0) {
+    return { legacy: true, expired: false, totalMinutes: null, hours: 0, minutes: 0 };
+  }
+
+  const remaining = expiresAt - at;
+  if (remaining <= 0) {
+    return { legacy: false, expired: true, totalMinutes: 0, hours: 0, minutes: 0 };
+  }
+
+  const totalMinutes = Math.ceil(remaining / 60000);
+  return {
+    legacy: false,
+    expired: false,
+    totalMinutes,
+    hours: Math.floor(totalMinutes / 60),
+    minutes: totalMinutes % 60
+  };
+}
+
 /* =========================================
  * 5. 資料正規化 (Data Normalization)
  * ========================================= */
@@ -727,6 +748,7 @@ if (typeof module !== 'undefined' && module.exports) {
     roomDbPath,
     isSessionExpired,
     isSessionActive,
+    sessionTimeParts,
     normalize,
     buildPools,
     poolOf,

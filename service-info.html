@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=gross-score1">
+  <link rel="stylesheet" href="style.css?v=plain-flow1">
   <style>
     .policy-shell { max-width: 900px; margin: 0 auto; }
     .policy-nav { display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 28px; }
@@ -41,11 +41,18 @@
 
     <section id="service" class="card policy-card mb-4">
       <h2>服務內容與售價</h2>
-      <p>BetPanel 是供派對、聚會與團體活動使用的現場互動預測積分 SaaS。主辦方建立單一活動房間，參與者以活動代碼加入，對題目選項提交自訂風險分數；主持人可截止提交、公布結果及查看逐人與全體積分報告。</p>
+      <p>BetPanel 是一個用手機就能加入的現場活動計分工具。主持人出題，大家選答案並輸入這次的分數，最後由主持人公布結果，系統自動整理每個人的正負積分。</p>
       <p class="price">單一活動房間：預計 NT$200／6 小時</p>
-      <p>費用僅購買一個活動房間的軟體使用時間。參與者無須付費，平台不販售、不預先配置也不接受儲值任何活動積分。</p>
-      <h3>積分規則</h3>
-      <p>N 個選項的題目，參與者自行輸入風險分數 R；結果符合所選項目時顯示總計 <strong>NR（包含原投入 R）</strong>，帳本淨加 <strong>+(N−1)R</strong>；不符合時總計為 0R，帳本淨扣 <strong>−R</strong>。積分可能為正、零或負。</p>
+      <p>這筆費用只購買一個活動房間的使用時間。參與者免費加入，不用註冊錢包、不用儲值，也不用先持有點數。</p>
+      <h3>怎麼使用？</h3>
+      <div class="plain-steps plain-steps-large">
+        <span><b>1</b> 主持人出題</span>
+        <span><b>2</b> 參與者選答案、輸入分數</span>
+        <span><b>3</b> 主持人公布結果，系統整理積分</span>
+      </div>
+      <h3>積分怎麼算？</h3>
+      <p>以二選一為例：你輸入 100 Pts，答對時畫面顯示總計 200 Pts，代表你的淨積分增加 100；答錯時總計為 0，淨積分減少 100。</p>
+      <p class="text-dim" style="font-size:.86rem;">規則細節：如果題目有 N 個選項、你輸入 R 分，答對總計為 NR（已包含原本的 R），淨積分增加 (N−1)R；答錯總計為 0，淨積分減少 R。</p>
       <div class="notice">活動積分沒有新臺幣匯率或財產價值，不可購買、轉讓、兌換、提領或折抵平台服務。BetPanel 不保管參與者資金，不處理活動內收付款，也不將積分報表定義為任何人的債權、債務或收益。</div>
       <p style="margin-top:14px;">目前網站為 Demo／測試版，尚未啟用真實付款。頁面上的「測試啟用」不代表已完成付款。</p>
     </section>

@@ -103,3 +103,17 @@
 - `npm.cmd run check`：12 項核心／靜態測試與兩頁 inline script 全數通過。
 - `npm.cmd run test:rules`：7 組 Realtime Database Rules 測試全數通過；本次未修改或重新部署 Rules。
 - GitHub Pages 已載入 `app.js?v=gross-score1`；390×844 手機驗證顯示 1,000 Pts 的答對總計 2,000（淨 +1,000）、答錯總計 0（淨 −1,000），無 console error。
+
+## 正式流程、時間邊界與白話說明
+
+- [x] 盤點玩家、主持人與服務說明頁的完整操作及時間判定
+- [x] 將參與方式、計分方式與單場收費改成一眼能懂的說明
+- [x] 統一並測試 6 小時倒數、到期邊界與背景分頁恢復行為
+- [x] 整理付款到啟用的時間流程與正式上線前必要條件
+- [x] 執行核心、inline script、JSON 與 Rules Emulator 回歸測試
+- [x] 在 GitHub Pages 實際走完建房、出題、參與、截止、公布、報表與封存
+- [ ] 推送正式版本並完成手機／桌面頁面驗證
+
+### Review
+
+- 待完成。

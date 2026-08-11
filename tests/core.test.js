@@ -61,6 +61,23 @@ test('single-session rooms last six hours while legacy rooms remain compatible',
   assert.equal(app.isSessionActive(legacy, Number.MAX_SAFE_INTEGER), true);
 });
 
+test('session countdown has an exact server-time boundary and never shows 60 minutes', () => {
+  const state = { expiresAt: 6 * 60 * 60 * 1000 };
+  assert.deepEqual(app.sessionTimeParts(state, 0), {
+    legacy: false, expired: false, totalMinutes: 360, hours: 6, minutes: 0
+  });
+  assert.deepEqual(app.sessionTimeParts(state, 1000), {
+    legacy: false, expired: false, totalMinutes: 360, hours: 6, minutes: 0
+  });
+  assert.deepEqual(app.sessionTimeParts(state, 60 * 1000), {
+    legacy: false, expired: false, totalMinutes: 359, hours: 5, minutes: 59
+  });
+  assert.deepEqual(app.sessionTimeParts(state, state.expiresAt), {
+    legacy: false, expired: true, totalMinutes: 0, hours: 0, minutes: 0
+  });
+  assert.equal(app.sessionTimeParts({}, Number.MAX_SAFE_INTEGER).legacy, true);
+});
+
 test('bet ownership never falls back to a matching nickname', () => {
   const bet = { bettorUid: 'user-a', bettorId: 'legacy-a', name: '同名' };
   assert.equal(app.betBelongsTo(bet, 'user-a', 'unused'), true);
@@ -123,7 +140,7 @@ test('commercial UI uses signed risk scores without odds, rake, payout, or host 
   assert.match(banker, /optionCount:\s*optionsArr\.length/);
   for (const source of [player, banker]) {
     assert.doesNotMatch(source, /x\d+\.\d+|抽水率|結算派彩|主持人點數損益|莊家收益拆算/);
-    assert.match(source, /app\.js\?v=gross-score1/);
+    assert.match(source, /app\.js\?v=plain-flow1/);
   }
 });
 
@@ -143,6 +160,21 @@ test('both pages use Firebase server time for session expiry UI', () => {
   assert.match(banker, /\.info\/serverTimeOffset/);
   assert.match(player, /isSessionExpired\(state, serverNow\(\)\)/);
   assert.match(banker, /isSessionExpired\(state, serverNow\(\)\)/);
+  assert.match(player, /visibilitychange/);
+  assert.match(banker, /visibilitychange/);
+  assert.match(player, /活動已封存 · 僅可查閱歷史與積分結果/);
+  assert.match(banker, /已封存・僅可查閱紀錄/);
+});
+
+test('public pages explain the activity in plain language', () => {
+  const player = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const banker = fs.readFileSync(path.join(__dirname, '..', 'banker.html'), 'utf8');
+  const service = fs.readFileSync(path.join(__dirname, '..', 'service-info.html'), 'utf8');
+  assert.match(player, /30 秒看懂/);
+  assert.match(player, /答對總計 200/);
+  assert.match(banker, /主持人只要做 4 件事/);
+  assert.match(service, /用手機就能加入的現場活動計分工具/);
+  assert.match(service, /參與者免費加入/);
 });
 
 test('formal and example rules stay byte-for-byte identical', () => {
