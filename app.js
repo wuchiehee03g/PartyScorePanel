@@ -1,5 +1,5 @@
 /**
- * BetPanel · 現場互動預測積分平台
+ * PartyScorePanel · 現場互動預測積分平台
  * 核心引擎 (Core Engine v4.0 - Signed Score Edition)
  * 包含：單場授權、自訂風險分數、選項數計分、參與者積分報表與 Web Audio 音效
  */
@@ -667,7 +667,7 @@ function generateFormattedBill(state, pools) {
   const nowStr = new Date().toLocaleString('zh-TW');
   
   let bill = `┌────────────────────────────────────────┐\n`;
-  bill += `│   ✨ BetPanel 活動積分報告 ✨          │\n`;
+  bill += `│ ✨ PartyScorePanel 活動積分報告 ✨      │\n`;
   bill += `├────────────────────────────────────────┤\n`;
   bill += `  活動名稱：${state.roomTitle || '現場互動活動'}\n`;
   bill += `  主持人：${state.hostName || '活動主持人'}\n`;

@@ -92,7 +92,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* Header (比照原版 DiceBetPanel 的高雅導覽列) */
+/* Header (PartyScorePanel 高雅導覽列) */
 .board-header {
   display: flex;
   flex-wrap: wrap;

@@ -1,5 +1,5 @@
 {
-  "name": "betpanel",
+  "name": "partyscorepanel",
   "private": true,
   "scripts": {
     "check": "node --check app.js && node tests/check-inline-scripts.js && node --test tests/core.test.js",

@@ -140,7 +140,7 @@ test('commercial UI uses signed risk scores without odds, rake, payout, or host 
   assert.match(banker, /optionCount:\s*optionsArr\.length/);
   for (const source of [player, banker]) {
     assert.doesNotMatch(source, /x\d+\.\d+|抽水率|結算派彩|主持人點數損益|莊家收益拆算/);
-    assert.match(source, /app\.js\?v=safe-presets1/);
+    assert.match(source, /app\.js\?v=partyscorepanel1/);
   }
 });
 
@@ -177,6 +177,10 @@ test('public pages explain the activity in plain language', () => {
   assert.match(banker, /主持人只要做 4 件事/);
   assert.match(service, /用手機就能加入的現場活動計分工具/);
   assert.match(service, /參與者免費加入/);
+  assert.match(player, /PartyScorePanel/);
+  assert.match(banker, /PartyScorePanel/);
+  assert.match(service, /PartyScorePanel/);
+  assert.doesNotMatch(player + banker + service, /BetPanel/);
   assert.match(service, /官方快速範本以猜歌、KTV 歡唱評分、猜拳與划拳/);
   assert.match(service, /好友體驗優惠只會免除一次六小時房間的軟體使用費/);
   assert.match(service, /正式啟用前仍須完成 Email 驗證與可信後端兌換流程/);
@@ -210,6 +214,19 @@ test('friend promotion grants software time only and stays server-authorized', (
   assert.match(promo, /前端不得直接把房間標成免費/);
   assert.match(promo, /不是舊版點數兌換碼/);
   assert.match(promo, /不能換成現金、活動 Pts、獎品、退款或其他利益/);
+});
+
+test('brand rename preserves Firebase storage identifiers and uses the new public URL', () => {
+  const appSource = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+  const player = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const banker = fs.readFileSync(path.join(__dirname, '..', 'banker.html'), 'utf8');
+  const service = fs.readFileSync(path.join(__dirname, '..', 'service-info.html'), 'utf8');
+  const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
+  assert.match(appSource, /const DB_PATH = 'betpanel'/);
+  assert.match(appSource, /projectId: "betpanel-249dc"/);
+  assert.match(player + banker + service, /PartyScorePanel/);
+  assert.doesNotMatch(player + banker + service, /BetPanel/);
+  assert.match(service + readme, /wuchiehee03g\.github\.io\/PartyScorePanel/);
 });
 
 test('formal and example rules stay byte-for-byte identical', () => {

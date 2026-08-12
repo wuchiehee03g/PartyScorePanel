@@ -1,6 +1,6 @@
-# BetPanel · 現場互動預測積分平台
+# PartyScorePanel · 現場互動預測積分平台
 
-BetPanel 是給現場派對、團體活動與私人聚會使用的即時預測積分 SaaS。目前仍是 Demo／測試階段，沒有玩家錢包、儲值、點數移轉、兌換、提領或現金派彩功能。
+PartyScorePanel 是給現場派對、團體活動與私人聚會使用的即時預測積分 SaaS。目前仍是 Demo／測試階段，沒有玩家錢包、儲值、點數移轉、兌換、提領或現金派彩功能。
 
 ## 產品模型
 
@@ -32,7 +32,7 @@ BetPanel 是給現場派對、團體活動與私人聚會使用的即時預測�
 
 好友推廣不恢復舊版玩家儲值或兌換碼；[好友體驗碼](FRIEND_PROMO_DESIGN.md)只免除一次六小時軟體房間費用。同一組碼要限制每人一次時，僅兌換免費優惠者需要驗證 Email，由後端交易防止重複領取。
 
-藍新金流官方雖允許自然人註冊，但其[商店管理規範](https://www.newebpay.com/website/Page/content/store_policy)把「賭場及博奕相關產業」列為禁止項目。BetPanel 在申請前應如實提供自訂風險分數、正負計分公式與主持人報表的完整流程，先取得藍新業務／法遵的書面可承作確認，並完成台灣法律專業評估；本次產品調整不構成核准或法律合規保證。
+藍新金流官方雖允許自然人註冊，但其[商店管理規範](https://www.newebpay.com/website/Page/content/store_policy)把「賭場及博奕相關產業」列為禁止項目。PartyScorePanel 在申請前應如實提供自訂風險分數、正負計分公式與主持人報表的完整流程，先取得藍新業務／法遵的書面可承作確認，並完成台灣法律專業評估；本次產品調整不構成核准或法律合規保證。
 
 網站核准後仍可進行一般維護，但新增敏感範本、金流或改變服務定位應先取得藍新確認；不可用送審時暫時隱藏、核准後再恢復的方式規避審查。詳細原則見 [NEWEB_CONTENT_CHANGE_POLICY.md](NEWEB_CONTENT_CHANGE_POLICY.md)。
 
@@ -83,8 +83,9 @@ npm run test:rules
 
 ## 部署
 
-- GitHub Pages 玩家頁：<https://wuchiehee03g.github.io/BetPanel/index.html>
-- GitHub Pages 主辦方頁：<https://wuchiehee03g.github.io/BetPanel/banker.html>
+- GitHub Repository：<https://github.com/wuchiehee03g/PartyScorePanel>
+- GitHub Pages 玩家頁：<https://wuchiehee03g.github.io/PartyScorePanel/index.html>
+- GitHub Pages 主辦方頁：<https://wuchiehee03g.github.io/PartyScorePanel/banker.html>
 - GitHub Pages 由 `main` branch 自動部署。
 - Firebase Rules 只有在確認需求及測試通過後才執行：
 

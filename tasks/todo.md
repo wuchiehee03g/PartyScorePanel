@@ -1,4 +1,4 @@
-# BetPanel 修復計畫
+# PartyScorePanel 修復計畫
 
 - [x] 統一派彩預覽與實際結算計算
 - [x] 修正玩家身份分組與房間代碼驗證
@@ -73,7 +73,17 @@
 - `firebase.cmd deploy --only database --project betpanel-249dc`：正式 Rules 語法檢查與發布成功。
 - GitHub `main` 已推送，正式參與者頁、主持人頁與服務政策頁均顯示新版內容。
 - 正式頁面重新載入後 Firebase Anonymous Auth 連線成功，三頁未出現新的 console error。
-- 專案外 `BetPanel-藍新送審資料` 已建立 11 份說明／範本／檢查文件與 3 張正式畫面證明；送件前仍須補真實客服與申請人資料，並取得藍新書面可承作回覆。
+- 專案外 `PartyScorePanel-藍新送審資料` 已建立說明／範本／檢查文件與正式畫面證明；送件前仍須補真實客服與申請人資料，並取得藍新書面可承作回覆。
+
+## PartyScorePanel 品牌更名
+
+- [x] 保留 Firebase Project ID、Database `betpanel` 根路徑與既有資料
+- [x] 更新玩家頁、主持人頁、服務政策、展示頁及積分報告品牌
+- [x] 更新 README、產品設計文件、套件名稱與測試
+- [x] 將藍新送審資料包品牌與網址改為 PartyScorePanel
+- [x] 重新命名 GitHub Repository 並更新本機 remote
+- [ ] 驗證新 GitHub Pages 網址、Firebase 匿名登入與公開品牌
+- [ ] 更新送審畫面證明
 
 ## 正式玩家提交失敗修復
 
