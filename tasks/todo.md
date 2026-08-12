@@ -7,7 +7,7 @@
 - [x] 保留正整數與安全整數的資料完整性驗證
 - [x] 更新正式與範例 Rules、測試與前端快取版本
 - [x] 執行核心、inline script、JSON 與 Rules Emulator 驗證
-- [ ] 部署 Rules、推送 main 並驗證正式頁面
+- [x] 部署 Rules、推送 main 並驗證正式頁面
 
 ### Review
 
@@ -17,6 +17,7 @@
 - `npm.cmd run check`：18 項核心／靜態測試及兩頁 inline script 全數通過。
 - `npm.cmd run test:rules`：7 組 Rules Emulator 測試通過，包含 10 億 Pts 可提交以及小數、超出安全整數仍被拒絕。
 - `firebase.cmd deploy --only database --project betpanel-249dc`：正式 Rules 發布成功。
+- GitHub Pages 已載入 `app.js?v=no-risk-limit1`；參與者頁與主持人頁均顯示已連線、無 console error，正式主持人頁已無最高風險分數欄位。
 
 - [x] 統一派彩預覽與實際結算計算
 - [x] 修正玩家身份分組與房間代碼驗證
