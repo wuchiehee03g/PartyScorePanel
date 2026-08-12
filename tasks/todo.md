@@ -82,8 +82,17 @@
 - [x] 更新 README、產品設計文件、套件名稱與測試
 - [x] 將藍新送審資料包品牌與網址改為 PartyScorePanel
 - [x] 重新命名 GitHub Repository 並更新本機 remote
-- [ ] 驗證新 GitHub Pages 網址、Firebase 匿名登入與公開品牌
+- [x] 驗證新 GitHub Pages 網址、Firebase 匿名登入與公開品牌
 - [ ] 更新送審畫面證明
+
+### Review
+
+- GitHub Repository 已更名為 `wuchiehee03g/PartyScorePanel`，本機 `origin` 已同步更新。
+- GitHub Pages 的參與者頁、主持人頁與服務政策頁皆由新路徑回應 200，顯示 PartyScorePanel 品牌與 `partyscorepanel1` 快取版本。
+- 正式參與者頁與主持人頁均顯示 Firebase「已連線」，三頁瀏覽器 console 無 error。
+- `npm.cmd run check`：17 項核心／靜態測試及兩頁 inline script 全數通過。
+- `npm.cmd run test:rules`：7 組 Realtime Database Rules Emulator 測試全數通過；本輪未修改或部署 Rules。
+- 專案外送審資料夾已更名為 `PartyScorePanel-藍新送審資料`，文字與正式網址已更新；舊畫面證明仍明確標記為待重拍，不冒充新版截圖。
 
 ## 正式玩家提交失敗修復
 
