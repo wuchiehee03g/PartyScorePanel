@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
   
   <!-- Core Engine -->
-  <script src="app.js?v=partyscorepanel1"></script>
+  <script src="app.js?v=no-risk-limit1"></script>
 </head>
 <body class="banker-mode">
 
@@ -79,12 +79,6 @@
         <div class="form-group">
           <label>主持人暱稱</label>
           <input type="text" id="hostName" placeholder="例如：阿翔主持人">
-        </div>
-
-        <div class="form-group">
-          <label>單次最高風險分數 (Pts)</label>
-          <input type="number" id="maxRiskPoints" value="10000" min="100" step="500">
-          <p class="text-dim" style="font-size:0.78rem; margin-top:4px;">這只是每次可輸入的分數上限。參與者不用先有點數，每次可自行決定要輸入多少。</p>
         </div>
 
         <button class="btn btn-cyan w-100 py-3 mt-3" id="btnCreateRoom" style="font-size: 1.05rem;">
@@ -496,17 +490,10 @@
     document.getElementById('btnCreateRoom').addEventListener('click', async () => {
       const rTitle = document.getElementById('roomTitle').value.trim() || '現場互動活動';
       const hName = document.getElementById('hostName').value.trim();
-      const maxRiskPoints = parseInt(document.getElementById('maxRiskPoints').value);
-      
       if(!hName) {
         SoundEngine.playError();
         return showToast('請輸入主持人暱稱', 'error');
       }
-      if (!Number.isInteger(maxRiskPoints) || maxRiskPoints <= 0) {
-        SoundEngine.playError();
-        return showToast('請輸入有效的單次最高風險分數', 'error');
-      }
-      
       const code = generateCode(6);
       const pin = generateCode(4);
       const activatedAt = serverNow();
@@ -517,7 +504,6 @@
         hostId: hostProfile.hostId,
         hostUid: authUser.uid,
         scoringMode: SCORE_MODE,
-        maxRiskPoints,
         pin: pin,
         status: 'active',
         accessMode: 'demo',
@@ -747,7 +733,6 @@
         options: optsObj,
         scoringMode: SCORE_MODE,
         optionCount: optionsArr.length,
-        maxRiskPoints: state.maxRiskPoints || DEFAULT_MAX_RISK_POINTS,
         locked: false,
         settled: false,
         createdAt: serverNow()

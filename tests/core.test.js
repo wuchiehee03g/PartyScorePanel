@@ -45,11 +45,11 @@ test('normalize preserves room ownership and archive state', () => {
 
 test('single-session rooms last six hours while legacy rooms remain compatible', () => {
   const activatedAt = 1_000_000;
-  const room = app.createRoom('主持人', '測試活動', 1000, 'host-1', activatedAt);
+  const room = app.createRoom('主持人', '測試活動', 'host-1', activatedAt);
   assert.equal(room.billingMode, 'single_room_6h_twd_200');
   assert.equal(room.sessionPriceTwd, 200);
   assert.equal(room.scoringMode, app.SCORE_MODE);
-  assert.equal(room.maxRiskPoints, 1000);
+  assert.equal('maxRiskPoints' in room, false);
   assert.equal('rakePercent' in room, false);
   assert.equal(room.expiresAt - room.activatedAt, 6 * 60 * 60 * 1000);
   assert.equal(app.isSessionExpired(room, room.expiresAt - 1), false);
@@ -140,8 +140,18 @@ test('commercial UI uses signed risk scores without odds, rake, payout, or host 
   assert.match(banker, /optionCount:\s*optionsArr\.length/);
   for (const source of [player, banker]) {
     assert.doesNotMatch(source, /x\d+\.\d+|抽水率|結算派彩|主持人點數損益|莊家收益拆算/);
-    assert.match(source, /app\.js\?v=partyscorepanel1/);
+    assert.match(source, /app\.js\?v=no-risk-limit1/);
   }
+});
+
+test('risk points have no host-configured per-submission maximum', () => {
+  const player = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const banker = fs.readFileSync(path.join(__dirname, '..', 'banker.html'), 'utf8');
+  assert.doesNotMatch(player + banker, /單次最高風險分數|maxRiskPoints|effectiveMaxRiskPoints/);
+  assert.deepEqual(app.validateRiskPoints(1_000_000_000), { ok: true });
+  assert.equal(app.validateRiskPoints(0).ok, false);
+  assert.equal(app.validateRiskPoints(1.5).ok, false);
+  assert.equal(app.validateRiskPoints(Number.MAX_SAFE_INTEGER + 1).ok, false);
 });
 
 test('player submission distinguishes permission, auth, and offline failures from network errors', () => {

@@ -65,9 +65,10 @@ test('valid signed-score prediction succeeds and forged score variants fail', as
   await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p3`), prediction({ optionId: 'missing' })));
   await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p4`), prediction({ scoreMultiplierAtPrediction: 99 })));
   await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p5`), prediction({ riskPoints: 10.5 })));
-  await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p6`), prediction({ riskPoints: 1001 })));
+  await assertSucceeds(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p6`), prediction({ riskPoints: 1_000_000_000 })));
   await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p7`), prediction({ scoringMode: 'fixed_odds' })));
   await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p8`), prediction({ ts: 1 })));
+  await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p9`), prediction({ riskPoints: Number.MAX_SAFE_INTEGER + 1 })));
   await assertFails(update(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p1`), { riskPoints: 1 }));
   await assertFails(set(ref(playerDb, `betpanel/rooms/${ROOM_ID}/bets/p1`), null));
 });
@@ -156,7 +157,7 @@ test('expired session blocks new activity but permits cutoff, result and archive
   await testEnv.withSecurityRulesDisabled(async context => {
     await update(ref(context.database(), `betpanel/rooms/${ROOM_ID}/config`), {
       accessMode: 'demo', billingMode: 'single_room_6h_twd_200', scoringMode: SCORE_MODE,
-      sessionPriceTwd: 200, maxRiskPoints: 1000,
+      sessionPriceTwd: 200,
       activatedAt: Date.now() - 7 * 60 * 60 * 1000,
       expiresAt: Date.now() - 60 * 60 * 1000
     });
@@ -207,7 +208,6 @@ function demoConfig(activatedAt) {
     billingMode: 'single_room_6h_twd_200',
     scoringMode: SCORE_MODE,
     sessionPriceTwd: 200,
-    maxRiskPoints: 1000,
     activatedAt,
     expiresAt: activatedAt + 6 * 60 * 60 * 1000,
     createdAt: activatedAt
@@ -216,7 +216,7 @@ function demoConfig(activatedAt) {
 
 function scoreRoom() {
   return {
-    config: { hostUid: HOST_UID, hostName: '測試主持人', roomTitle: '測試活動', status: 'active', maxRiskPoints: 1000 },
+    config: { hostUid: HOST_UID, hostName: '測試主持人', roomTitle: '測試活動', status: 'active' },
     markets: { m1: scoreMarket() }
   };
 }
@@ -227,7 +227,6 @@ function scoreMarket() {
     desc: '測試',
     scoringMode: SCORE_MODE,
     optionCount: 2,
-    maxRiskPoints: 1000,
     options: { o1: { label: '選項一', order: 0 }, o2: { label: '選項二', order: 1 } },
     locked: false,
     settled: false

@@ -1,5 +1,23 @@
 # PartyScorePanel 修復計畫
 
+## 移除單次風險分數上限
+
+- [x] 移除建立活動時的最高風險分數欄位與資料寫入
+- [x] 取消新題目及新預測對房間／題目上限的依賴
+- [x] 保留正整數與安全整數的資料完整性驗證
+- [x] 更新正式與範例 Rules、測試與前端快取版本
+- [x] 執行核心、inline script、JSON 與 Rules Emulator 驗證
+- [ ] 部署 Rules、推送 main 並驗證正式頁面
+
+### Review
+
+- 建立活動頁不再顯示或寫入單次最高風險分數，新題目亦不含該欄位。
+- 玩家提交只要求大於 0 的安全整數；不再讀取房間或題目的產品上限。
+- 既有房間、題目與歷史預測不搬移、不刪除；舊資料內若已有上限欄位，前端不再使用它。
+- `npm.cmd run check`：18 項核心／靜態測試及兩頁 inline script 全數通過。
+- `npm.cmd run test:rules`：7 組 Rules Emulator 測試通過，包含 10 億 Pts 可提交以及小數、超出安全整數仍被拒絕。
+- `firebase.cmd deploy --only database --project betpanel-249dc`：正式 Rules 發布成功。
+
 - [x] 統一派彩預覽與實際結算計算
 - [x] 修正玩家身份分組與房間代碼驗證
 - [x] 修正房間／盤口封存與結算終態

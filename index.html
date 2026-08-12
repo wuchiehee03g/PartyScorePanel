@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
     
     <!-- Core App Engine -->
-    <script src="app.js?v=partyscorepanel1"></script>
+    <script src="app.js?v=no-risk-limit1"></script>
 </head>
 <body>
 
@@ -691,7 +691,7 @@
                             <label style="font-size: 0.8rem; color: var(--gold-bright);">
                                 ${selectedOptObj ? `已選擇結果: 【${esc(selectedOptObj.label)}】` : '👉 請先點擊上方選項，再輸入本次風險分數'}
                             </label>
-                            <input type="number" id="amt-${m.id}" class="input-control" placeholder="輸入風險分數（不需要預先持有點數）..."
+                            <input type="number" id="amt-${m.id}" class="input-control" min="1" step="1" inputmode="numeric" placeholder="輸入風險分數（不需要預先持有點數）..."
                                    value="${currentDraftAmt}" oninput="updateDraftAmount('${m.id}', this.value)">
                         </div>
                         
@@ -847,8 +847,8 @@
                 return;
             }
             
-            const riskPoints = parseInt(draftAmounts[marketId]);
-            if (isNaN(riskPoints) || riskPoints <= 0) {
+            const riskPoints = Number(draftAmounts[marketId]);
+            if (!Number.isFinite(riskPoints) || riskPoints <= 0) {
                 SoundEngine.playError();
                 showToast('請輸入有效的風險分數', 'warning');
                 return;
@@ -877,7 +877,7 @@
                     return;
                 }
                 
-                const valRes = validateRiskPoints(riskPoints, effectiveMaxRiskPoints(freshState, freshM));
+                const valRes = validateRiskPoints(riskPoints);
                 if (!valRes.ok) {
                     SoundEngine.playError();
                     showToast(valRes.reason, 'error');

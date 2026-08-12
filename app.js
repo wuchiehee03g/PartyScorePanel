@@ -15,7 +15,6 @@ const firebaseConfig = {
 
 const DB_PATH = 'betpanel';
 const LEGACY_DEFAULT_ODDS = 2;
-const DEFAULT_MAX_RISK_POINTS = 10000;
 const QUICK_AMOUNTS = [100, 500, 1000, 5000];
 const SESSION_PRICE_TWD = 200;
 const SESSION_DURATION_MS = 6 * 60 * 60 * 1000;
@@ -180,7 +179,7 @@ function generateRoomPin() {
   return res;
 }
 
-function createRoom(hostName, roomTitle = '', maxRiskPoints = DEFAULT_MAX_RISK_POINTS, hostId = null, activatedAt = Date.now()) {
+function createRoom(hostName, roomTitle = '', hostId = null, activatedAt = Date.now()) {
   return {
     code: generateRoomCode(),
     hostName: hostName || '活動主持人',
@@ -195,7 +194,6 @@ function createRoom(hostName, roomTitle = '', maxRiskPoints = DEFAULT_MAX_RISK_P
     activatedAt,
     expiresAt: activatedAt + SESSION_DURATION_MS,
     createdAt: activatedAt,
-    maxRiskPoints: Number(maxRiskPoints),
     markets: {},
     bets: {}
   };
@@ -258,9 +256,6 @@ function normalize(raw) {
     archivedAt: config.archivedAt || raw.archivedAt || null,
     rakePercent: typeof config.rake === 'number' ? (config.rake / 100) : (typeof raw.rakePercent === 'number' ? raw.rakePercent : 0),
     createdAt: config.createdAt || raw.createdAt || Date.now(),
-    maxRiskPoints: typeof config.maxRiskPoints === 'number'
-      ? config.maxRiskPoints
-      : (typeof config.maxBet === 'number' ? config.maxBet : (typeof raw.maxBet === 'number' ? raw.maxBet : DEFAULT_MAX_RISK_POINTS)),
     markets: [],
     bets: [],
     updates: []
@@ -281,8 +276,7 @@ function normalize(raw) {
         id: mId,
         options,
         scoringMode: m.scoringMode || 'legacy_fixed_odds',
-        optionCount: Number(m.optionCount) || options.length,
-        maxRiskPoints: Number(m.maxRiskPoints) || Number(m.maxBet) || null
+        optionCount: Number(m.optionCount) || options.length
       };
     });
     state.markets.sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -401,7 +395,7 @@ function scorePreview(riskPoints, market) {
  * ========================================= */
 
 function buildDuelMarket(opts) {
-  const { nameA, nameB, maxRiskPoints } = opts;
+  const { nameA, nameB } = opts;
   
   return {
     title: `${nameA} vs ${nameB}`,
@@ -409,7 +403,6 @@ function buildDuelMarket(opts) {
     category: 'duel',
     scoringMode: SCORE_MODE,
     optionCount: 2,
-    maxRiskPoints: maxRiskPoints || null,
     locked: false,
     settled: false,
     winnerId: null,
@@ -422,7 +415,7 @@ function buildDuelMarket(opts) {
 }
 
 function buildCustomMarket(opts) {
-  const { title, desc, options, maxRiskPoints } = opts;
+  const { title, desc, options } = opts;
   
   const mOptions = options.map((opt, idx) => ({
     id: `opt${idx}`,
@@ -436,7 +429,6 @@ function buildCustomMarket(opts) {
     category: 'custom',
     scoringMode: SCORE_MODE,
     optionCount: mOptions.length,
-    maxRiskPoints: maxRiskPoints || null,
     locked: false,
     settled: false,
     winnerId: null,
@@ -519,16 +511,10 @@ function betOutcome(state, pools, bet) {
   }
 }
 
-function effectiveMaxRiskPoints(state, market) {
-  if (market && market.maxRiskPoints !== null && market.maxRiskPoints > 0) return market.maxRiskPoints;
-  return state.maxRiskPoints || DEFAULT_MAX_RISK_POINTS;
-}
-
-function validateRiskPoints(rawPoints, maxRiskPoints) {
+function validateRiskPoints(rawPoints) {
   const points = Number(rawPoints);
-  if (isNaN(points) || points <= 0) return { ok: false, reason: '請輸入有效的風險分數' };
-  if (!Number.isInteger(points)) return { ok: false, reason: '風險分數必須為整數' };
-  if (points > maxRiskPoints) return { ok: false, reason: `單次風險分數不能超過 ${fmt(maxRiskPoints)} Pts` };
+  if (!Number.isFinite(points) || points <= 0) return { ok: false, reason: '請輸入有效的風險分數' };
+  if (!Number.isSafeInteger(points)) return { ok: false, reason: '風險分數必須是有效的正整數' };
   return { ok: true };
 }
 
@@ -727,7 +713,6 @@ if (typeof module !== 'undefined' && module.exports) {
     firebaseConfig,
     DB_PATH,
     LEGACY_DEFAULT_ODDS,
-    DEFAULT_MAX_RISK_POINTS,
     QUICK_AMOUNTS,
     SESSION_PRICE_TWD,
     SESSION_DURATION_MS,
@@ -766,7 +751,6 @@ if (typeof module !== 'undefined' && module.exports) {
     resultScenario,
     settleInfo,
     betOutcome,
-    effectiveMaxRiskPoints,
     validateRiskPoints,
     sameNickname,
     betBelongsTo,
