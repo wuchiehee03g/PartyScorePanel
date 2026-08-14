@@ -1,5 +1,20 @@
 # PartyScorePanel 修復計畫
 
+## Firebase 專案隔離
+
+- [x] 保留 `betpanel-249dc` 給原版 BetPanel 與既有資料
+- [x] 建立 `partyscorepanel-249dc` 與 Asia Southeast 1 Realtime Database
+- [x] 啟用 Anonymous Authentication 與 GitHub Pages 授權網域
+- [x] 更新 PartyScorePanel Web App 設定與獨立 localStorage 鍵
+- [x] 執行核心、inline script、JSON 與 Rules Emulator 驗證
+- [ ] 部署 PartyScorePanel Rules/Auth 並完成線上端對端驗證
+- [ ] 恢復 BetPanel Rules、推送新 repo 並驗證舊網址
+
+### 原則
+
+- PartyScorePanel 從新的空白資料庫開始，不搬移舊測試房，避免跨 Firebase Project 的匿名 UID 失去管理權。
+- 兩個產品保留既有 `betpanel/rooms` 內部路徑與資料欄位，但分屬不同 Firebase Project。
+
 ## 移除單次風險分數上限
 
 - [x] 移除建立活動時的最高風險分數欄位與資料寫入

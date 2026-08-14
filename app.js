@@ -5,12 +5,12 @@
  */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDfMIkPI9fdeYg5sVuL4fLHcbSxxtfVgPM",
-  authDomain: "betpanel-249dc.firebaseapp.com",
-  databaseURL: "https://betpanel-249dc-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "betpanel-249dc",
-  appId: "1:833468168241:web:f8267242dd2ab7c1277d10",
-  messagingSenderId: "833468168241",
+  apiKey: "AIzaSyBPmoeeXxUAkEl41ic5k0KlB50B8HUnBLE",
+  authDomain: "partyscorepanel-249dc.firebaseapp.com",
+  databaseURL: "https://partyscorepanel-249dc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "partyscorepanel-249dc",
+  appId: "1:95363847484:web:aae99956166a8474c3fa39",
+  messagingSenderId: "95363847484",
 };
 
 const DB_PATH = 'betpanel';
@@ -93,12 +93,12 @@ const SoundEngine = {
   },
   isMuted() {
     if (typeof localStorage === 'undefined') return false;
-    return localStorage.getItem('bp_sfx_muted') === 'true';
+    return localStorage.getItem('psp_sfx_muted') === 'true';
   },
   toggleMute() {
     const muted = !this.isMuted();
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('bp_sfx_muted', muted ? 'true' : 'false');
+      localStorage.setItem('psp_sfx_muted', muted ? 'true' : 'false');
     }
     return muted;
   },

@@ -9,5 +9,10 @@
       "**/.*",
       "**/node_modules/**"
     ]
+  },
+  "auth": {
+    "providers": {
+      "anonymous": true
+    }
   }
 }

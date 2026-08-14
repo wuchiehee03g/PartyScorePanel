@@ -140,7 +140,7 @@ test('commercial UI uses signed risk scores without odds, rake, payout, or host 
   assert.match(banker, /optionCount:\s*optionsArr\.length/);
   for (const source of [player, banker]) {
     assert.doesNotMatch(source, /x\d+\.\d+|抽水率|結算派彩|主持人點數損益|莊家收益拆算/);
-    assert.match(source, /app\.js\?v=no-risk-limit1/);
+    assert.match(source, /app\.js\?v=firebase-split1/);
   }
 });
 
@@ -226,14 +226,17 @@ test('friend promotion grants software time only and stays server-authorized', (
   assert.match(promo, /不能換成現金、活動 Pts、獎品、退款或其他利益/);
 });
 
-test('brand rename preserves Firebase storage identifiers and uses the new public URL', () => {
+test('PartyScorePanel uses an isolated Firebase project and public URL', () => {
   const appSource = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
   const player = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const banker = fs.readFileSync(path.join(__dirname, '..', 'banker.html'), 'utf8');
   const service = fs.readFileSync(path.join(__dirname, '..', 'service-info.html'), 'utf8');
   const readme = fs.readFileSync(path.join(__dirname, '..', 'README.md'), 'utf8');
   assert.match(appSource, /const DB_PATH = 'betpanel'/);
-  assert.match(appSource, /projectId: "betpanel-249dc"/);
+  assert.match(appSource, /projectId: "partyscorepanel-249dc"/);
+  assert.doesNotMatch(appSource + player + banker, /projectId: "betpanel-249dc"/);
+  assert.match(player, /const ROOM_KEY = 'psp-room'/);
+  assert.match(banker, /const ROOM_KEY = 'psp-host-room'/);
   assert.match(player + banker + service, /PartyScorePanel/);
   assert.doesNotMatch(player + banker + service, /BetPanel/);
   assert.match(service + readme, /wuchiehee03g\.github\.io\/PartyScorePanel/);

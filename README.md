@@ -51,6 +51,7 @@ PartyScorePanel 是給現場派對、團體活動與私人聚會使用的即時�
 
 ## 資料與安全
 
+- Firebase Project：`partyscorepanel-249dc`，Realtime Database 位於 `asia-southeast1`。
 - 主要資料：`betpanel/rooms/{roomId}/{config,markets,bets,updates,auditLogs}`。
 - 參與者只能新增自己的預測；不能修改或刪除既有預測。
 - 主辦方只能管理 `hostUid` 與登入 UID 相同的房間。
@@ -90,7 +91,7 @@ npm run test:rules
 - Firebase Rules 只有在確認需求及測試通過後才執行：
 
 ```powershell
-firebase.cmd deploy --only database --project betpanel-249dc
+firebase.cmd deploy --only database,auth --project partyscorepanel-249dc
 ```
 
-本次改版不會自動部署 Rules、提交 Git 或推送 GitHub。
+`PartyScorePanel` 與原版 `BetPanel` 使用不同 Firebase Project；兩者的匿名 UID、房間與瀏覽器本機狀態不共用。
