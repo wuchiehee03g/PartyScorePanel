@@ -7,13 +7,20 @@
 - [x] 啟用 Anonymous Authentication 與 GitHub Pages 授權網域
 - [x] 更新 PartyScorePanel Web App 設定與獨立 localStorage 鍵
 - [x] 執行核心、inline script、JSON 與 Rules Emulator 驗證
-- [ ] 部署 PartyScorePanel Rules/Auth 並完成線上端對端驗證
-- [ ] 恢復 BetPanel Rules、推送新 repo 並驗證舊網址
+- [x] 部署 PartyScorePanel Rules/Auth 並完成線上端對端驗證
+- [x] 恢復 BetPanel Rules、推送新 repo 並驗證舊網址
 
 ### 原則
 
 - PartyScorePanel 從新的空白資料庫開始，不搬移舊測試房，避免跨 Firebase Project 的匿名 UID 失去管理權。
 - 兩個產品保留既有 `betpanel/rooms` 內部路徑與資料欄位，但分屬不同 Firebase Project。
+
+### Review
+
+- 新 Firebase Project `partyscorepanel-249dc` 已建立，Realtime Database 位於 `asia-southeast1`；Anonymous Auth 與 `wuchiehee03g.github.io` 授權網域已啟用。
+- `npm run check`：18 項核心／靜態測試與兩頁 inline script 全數通過；`npm run test:rules`：7 組 Rules Emulator 測試全數通過。
+- 正式測試房 `SBNRHH` 已完成建立活動、發布題目、玩家提交 100 Pts、主持人即時收到與截止題目，兩頁皆顯示已連線且無 console error。
+- PartyScorePanel 與 BetPanel 現在使用不同 Firebase Project、Web App、Rules、Anonymous Auth 及 localStorage 鍵。
 
 ## 移除單次風險分數上限
 
